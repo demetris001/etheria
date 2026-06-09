@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>My Trips – Etheria</title>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <a href="/" class="logo">🌌 Etheria</a>
+  </div>
+
+  <div class="nav-links">
+    <a href="{% url 'create_trip' %}">Create Trip</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<div class="container my-trips-page">
+
+  <!-- MY TRIPS HERO -->
+  <section class="my-trips-hero">
+
+    <div class="my-trips-hero-content">
+      <span class="page-eyebrow">Your travel dashboard</span>
+
+      <h1>My Trips</h1>
+
+      <p>
+        Continue planning your group trips, revisit shared decisions,
+        or start a new journey with your people.
+      </p>
+    </div>
+
+    <div class="my-trips-hero-action">
+      <a href="{% url 'create_trip' %}" class="btn btn-primary">
+        + New Trip
+      </a>
+    </div>
+
+  </section>
+
+  {% if trips %}
+
+    <!-- TRIPS GRID -->
+    <div class="trips-grid">
+      {% for trip in trips %}
+
+        <div class="trip-card-small-wrapper">
+
+          <a href="{% url 'trip_detail' trip.pk %}" class="trip-card-small">
+
+            <div class="trip-card-top">
+
+              <div class="trip-card-icon">
+                ✈️
+              </div>
+
+              <span class="status-badge status-{{ trip.status }}">
+                {{ trip.status }}
+              </span>
+
+            </div>
+
+            <div class="trip-card-body">
+
+              <span class="trip-card-kicker">
+                Group trip
+              </span>
+
+              <h3>{{ trip.title }}</h3>
+
+              {% if trip.destination %}
+                <p class="trip-destination">
+                  <span>📍</span>
+                  {{ trip.destination }}
+                </p>
+              {% else %}
+                <p class="trip-destination muted">
+                  <span>📍</span>
+                  Destination not set yet
+                </p>
+              {% endif %}
+
+              <p class="trip-dates">
+                <span>📅</span>
+
+                {% for trip_id, dates in trip_dates.items %}
+                  {% if trip_id == trip.id and dates %}
+                    {{ dates }}
+                  {% elif trip_id == trip.id and not dates %}
+                    Dates not set yet
+                  {% endif %}
+                {% endfor %}
+              </p>
+
+            </div>
+
+            <div class="trip-card-footer">
+              <span>Open trip</span>
+              <span class="trip-card-arrow">→</span>
+            </div>
+
+          </a>
+
+          {% if user == trip.leader %}
+            <form
+              method="post"
+              action="{% url 'delete_trip' trip.pk %}"
+              class="delete-form"
+              onsubmit="return confirm('Delete this trip?');"
+            >
+              {% csrf_token %}
+
+              <button type="submit" class="btn-delete" title="Delete trip">
+                ×
+              </button>
+            </form>
+          {% endif %}
+
+        </div>
+
+      {% endfor %}
+    </div>
+
+  {% else %}
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state-card my-trips-empty">
+      <div class="empty-icon">🌍</div>
+
+      <span class="page-eyebrow">Start your first journey</span>
+
+      <h2>No trips yet</h2>
+
+      <p>
+        You haven't created or joined any trips yet. Start your first group trip,
+        invite your people, and let the group decide together.
+      </p>
+
+      <a href="{% url 'create_trip' %}" class="btn btn-primary">
+        Create Your First Trip
+      </a>
+    </div>
+
+  {% endif %}
+
+</div>
+
+</body>
+</html>

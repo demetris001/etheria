@@ -1,0 +1,292 @@
+{% if transport %}
+
+  <div class="panel-intro" style="margin-bottom: 1rem;">
+    <p style="color: var(--text-light); font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.6rem;">
+      Suggest flights, trains, buses, ferries or transfers and let the group vote for the best option.
+    </p>
+
+    <p style="margin-bottom: 0;">
+      <em style="color: var(--text-light); font-size: 0.9rem;">
+        {{ transport.proposals|length }}/{{ transport.category.max_proposals }} proposals
+      </em>
+    </p>
+  </div>
+
+  {% if transport.proposals %}
+
+    <div class="proposal-list">
+      {% for item in transport.proposals %}
+
+        <div
+          class="proposal-item {% if item.proposal.is_locked %}locked{% endif %}"
+          data-proposal-id="{{ item.proposal.pk }}"
+          style="display: block;"
+        >
+
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem;">
+
+            <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+
+              <div
+                style="
+                  width: 42px;
+                  height: 42px;
+                  border-radius: 12px;
+                  background: var(--blue-pale);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  flex-shrink: 0;
+                  font-size: 1.25rem;
+                "
+              >
+                ✈️
+              </div>
+
+              <div>
+                <strong style="display: block; font-size: 1rem; margin-bottom: 0.25rem;">
+                  {{ item.proposal.title }}
+                </strong>
+
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+
+                  {% if item.proposal.cost %}
+                    <span
+                      style="
+                        display: inline-block;
+                        padding: 0.2rem 0.65rem;
+                        border-radius: 999px;
+                        background: rgba(28,84,133,0.08);
+                        color: var(--blue);
+                        font-size: 0.78rem;
+                        font-weight: 800;
+                      "
+                    >
+                      €{{ item.proposal.cost }}
+                    </span>
+                  {% endif %}
+
+                  {% if item.proposal.link %}
+                    <a
+                      href="{{ item.proposal.link }}"
+                      target="_blank"
+                      style="
+                        display: inline-block;
+                        padding: 0.2rem 0.65rem;
+                        border-radius: 999px;
+                        background: rgba(224,136,58,0.12);
+                        color: var(--gold);
+                        font-size: 0.78rem;
+                        font-weight: 800;
+                        text-decoration: none;
+                      "
+                    >
+                      View option
+                    </a>
+                  {% endif %}
+
+                </div>
+
+                {% if item.proposal.is_locked %}
+                  <span
+                    style="
+                      display: inline-block;
+                      padding: 0.2rem 0.6rem;
+                      border-radius: 999px;
+                      background: rgba(224,136,58,0.15);
+                      color: var(--gold);
+                      font-size: 0.75rem;
+                      font-weight: 700;
+                    "
+                  >
+                    Agreed transport
+                  </span>
+                {% else %}
+                  <span
+                    style="
+                      display: inline-block;
+                      padding: 0.2rem 0.6rem;
+                      border-radius: 999px;
+                      background: rgba(28,84,133,0.08);
+                      color: var(--blue);
+                      font-size: 0.75rem;
+                      font-weight: 700;
+                    "
+                  >
+                    Open for voting
+                  </span>
+                {% endif %}
+              </div>
+
+            </div>
+
+            {% if user == trip.leader %}
+              <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+
+                {% if item.proposal.is_locked %}
+
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    style="background: var(--gold); color: white;"
+                    onclick="toggleLock(this, {{ item.proposal.pk }})"
+                  >
+                    Unlock
+                  </button>
+
+                {% else %}
+
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    onclick="toggleLock(this, {{ item.proposal.pk }})"
+                  >
+                    Agree
+                  </button>
+
+                  <a
+                    href="{% url 'edit_proposal' item.proposal.pk %}"
+                    class="btn btn-sm btn-secondary"
+                  >
+                    Edit
+                  </a>
+
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    style="background:#dc2626; color:white;"
+                    onclick="deleteProposal(this, {{ item.proposal.pk }})"
+                    title="Delete proposal"
+                  >
+                    ×
+                  </button>
+
+                {% endif %}
+
+              </div>
+            {% endif %}
+
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+
+            <div class="vote-bar" style="flex: 1; min-width: 120px;">
+              <div
+                class="vote-bar-fill"
+                style="width: {% widthratio item.avg_score 5 100 %}%;"
+              ></div>
+            </div>
+
+            <small style="min-width: 85px;">
+              {{ item.avg_score|floatformat:1 }}/5 ({{ item.total_votes }})
+            </small>
+
+            <form
+              method="post"
+              action="{% url 'vote_proposal' item.proposal.pk %}"
+              class="vote-form"
+              onsubmit="return false;"
+              style="min-width: 110px;"
+            >
+              {% csrf_token %}
+
+              <select name="score" onchange="submitVote(this)" style="margin-bottom: 0;">
+                <option value="">Vote</option>
+                {% for i in "12345" %}
+                  <option value="{{ i }}">{{ i }}★</option>
+                {% endfor %}
+              </select>
+            </form>
+
+          </div>
+
+        </div>
+
+      {% endfor %}
+    </div>
+
+  {% else %}
+
+    <div
+      style="
+        background: #f7fbff;
+        border: 1px dashed var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+      "
+    >
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">✈️</div>
+
+      <strong style="display: block; color: var(--text); margin-bottom: 0.3rem;">
+        No transport proposals yet
+      </strong>
+
+      <p style="font-size: 0.9rem;">
+        Add a flight, train, bus, ferry or transfer option so the group can compare.
+      </p>
+    </div>
+
+  {% endif %}
+
+  {% if transport.can_add %}
+
+    <form
+      method="post"
+      action="{% url 'add_proposal' trip.pk transport.category.id %}"
+      class="add-proposal-form"
+      style="
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f7fbff;
+        border-radius: 16px;
+        border: 1px solid rgba(28,84,133,0.12);
+      "
+    >
+      {% csrf_token %}
+
+      <div class="field-group" style="margin-bottom: 0.8rem;">
+        <label style="font-size: 0.85rem;">Add transport proposal</label>
+
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <input
+            type="text"
+            name="title"
+            placeholder="Flight / Route"
+            required
+            style="flex: 2; margin-bottom: 0;"
+          >
+
+          <input
+            type="number"
+            name="cost"
+            placeholder="Price (€)"
+            step="0.01"
+            style="flex: 1; margin-bottom: 0;"
+          >
+        </div>
+
+        <input
+          type="url"
+          name="link"
+          placeholder="Booking link (optional)"
+          style="margin-bottom: 0;"
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-sm">
+        Add Proposal
+      </button>
+    </form>
+
+  {% else %}
+
+    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 1rem;">
+      Maximum number of transport proposals reached.
+    </p>
+
+  {% endif %}
+
+{% endif %}

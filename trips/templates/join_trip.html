@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join {{ trip.title }} – Etheria</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="invite-page">
+
+  <div class="invite-join-card">
+
+    <a href="/" class="auth-logo">🌌 Etheria</a>
+
+    <div class="invite-join-icon">👥</div>
+
+    <span class="page-eyebrow">Trip invitation</span>
+
+    <h1>{{ trip.title }}</h1>
+
+    <p class="invite-join-subtitle">
+      You've been invited to join this group trip.
+    </p>
+
+    <div class="invite-trip-details">
+
+      <div class="invite-detail-item">
+        <span class="invite-detail-label">Route</span>
+        <strong>
+          {{ trip.origin|default:'Not set' }} → {{ trip.destination|default:'Not set' }}
+        </strong>
+      </div>
+
+      <div class="invite-detail-item">
+        <span class="invite-detail-label">Dates</span>
+        <strong>
+          {{ trip.start_date|date:"d/m/Y"|default:'?' }}
+          –
+          {{ trip.end_date|date:"d/m/Y"|default:'?' }}
+        </strong>
+      </div>
+
+      <div class="invite-detail-item">
+        <span class="invite-detail-label">Organized by</span>
+        <strong>{{ trip.leader.username }}</strong>
+      </div>
+
+    </div>
+
+    {% if user.is_authenticated %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-primary invite-main-btn">
+          Join This Trip
+        </button>
+      </form>
+
+    {% else %}
+
+      <a
+        href="{% url 'enter' %}?next={% url 'join_trip' trip.pk %}"
+        class="btn btn-primary invite-main-btn"
+      >
+        Log in to Join
+      </a>
+
+    {% endif %}
+
+    <a href="/" class="auth-back-link">
+      ← Back to Home
+    </a>
+
+  </div>
+
+</body>
+</html>

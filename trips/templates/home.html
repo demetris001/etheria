@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Etheria – Plan together, travel together</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="landing-page">
+
+  <section class="landing">
+    <div class="landing-content">
+      <h1 class="landing-title">Etheria</h1>
+
+      <p class="landing-subtitle">
+        Organize group trips without endless messages.
+      </p>
+
+      <p class="landing-slogan">
+      Create a shared trip page, invite your group, vote on options and agree together.
+      </p>
+
+      <div class="landing-actions">
+        <a href="{% url 'create_trip' %}" class="btn btn-primary">Create Trip</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'my_trips' %}" class="btn btn-secondary">My Trips</a>
+        {% endif %}
+
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <h3>📅 Vote on dates</h3>
+      <p>Find the dates that work for everyone.</p>
+    </div>
+
+    <div class="feature">
+      <h3>📍 Choose destinations</h3>
+      <p>Let the group decide together.</p>
+    </div>
+
+    <div class="feature">
+      <h3>💰 Split expenses</h3>
+      <p>Keep track of shared costs easily.</p>
+    </div>
+
+    <div class="feature">
+      <h3>✈️ Travel stress-free</h3>
+      <p>Keep the whole trip organized in one place.</p>
+    </div>
+  </section>
+
+</body>
+</html>

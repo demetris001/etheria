@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Trip – Etheria</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">← Back</a>
+    
+    <div class="trip-card">
+      <h1 class="card-title">Create a New Trip</h1>
+      <p class="card-subtitle">Start your group adventure</p>
+      
+      <form method="post">
+        {% csrf_token %}
+        <div class="field-group">
+          <label for="trip-name">Trip Name</label>
+          <input type="text" id="trip-name" name="title" placeholder="Summer in Prague" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Create Trip</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

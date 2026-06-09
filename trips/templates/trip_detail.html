@@ -1,0 +1,991 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ trip.title }} – Etheria</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <a href="/" class="logo">🌌 Etheria</a>
+  </div>
+
+  <div class="nav-links">
+    <a href="{% url 'my_trips' %}">My Trips</a>
+    <a href="{% url 'account_logout' %}">Logout</a>
+  </div>
+</nav>
+
+<!-- Hidden CSRF token for AJAX actions -->
+<form id="csrf-form" style="display: none;">
+  {% csrf_token %}
+</form>
+
+<div class="split-layout">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <!-- TRIP HERO -->
+    <div class="trip-hero">
+     <div class="trip-hero-content">
+        <span class="trip-eyebrow">Group Trip</span>
+
+        <h1>{{ trip.title }}</h1>
+
+        <p>
+          {% if summary.Destination %}
+            {{ summary.Destination|join:" → " }}
+          {% else %}
+            Start planning your route together.
+          {% endif %}
+        </p>
+      </div>
+   </div>
+<div>
+<!-- TRIP SUMMARY -->
+<details class="trip-summary-ticket">
+
+  <summary class="trip-summary-ticket-summary">
+    <div class="summary-collapsed-row">
+
+      <div class="summary-collapsed-brand">
+        <span class="summary-collapsed-icon">🧭</span>
+        <span>Trip summary</span>
+      </div>
+
+      <span class="trip-summary-arrow">⌄</span>
+
+    </div>
+  </summary>
+
+  <div class="trip-summary-ticket-body">
+
+    <div class="summary-ticket-header">
+      <div>
+        <span class="summary-ticket-label">Current group plan</span>
+        <h2>Trip summary</h2>
+      </div>
+
+      <div class="summary-ticket-stamp">
+        ✈
+      </div>
+    </div>
+
+    <div class="ticket-fields-grid">
+
+      <div class="ticket-field {% if summary.Destination %}is-set{% endif %}">
+        <span class="ticket-field-label">Route</span>
+
+        <strong class="ticket-field-value">
+          {% if summary.Destination %}
+            {{ summary.Destination|join:" → " }}
+          {% else %}
+            Not yet
+          {% endif %}
+        </strong>
+      </div>
+
+      <div class="ticket-field {% if summary.Dates %}is-set{% endif %}">
+        <span class="ticket-field-label">Dates</span>
+
+        <strong class="ticket-field-value">
+          {% if summary.Dates %}
+            {{ summary.Dates|join:" → " }}
+          {% else %}
+            Not yet
+          {% endif %}
+        </strong>
+      </div>
+
+      <div class="ticket-field {% if summary.Μετάβαση %}is-set{% endif %}">
+        <span class="ticket-field-label">Transport</span>
+
+        <strong class="ticket-field-value">
+          {% if summary.Μετάβαση %}
+            {{ summary.Μετάβαση|join:" → " }}
+          {% else %}
+            Not yet
+          {% endif %}
+        </strong>
+      </div>
+
+      <div class="ticket-field {% if summary.Διαμονή %}is-set{% endif %}">
+        <span class="ticket-field-label">Accommodation</span>
+
+        <strong class="ticket-field-value">
+          {% if summary.Διαμονή %}
+            {{ summary.Διαμονή|join:" → " }}
+          {% else %}
+            Not yet
+          {% endif %}
+        </strong>
+      </div>
+
+    </div>
+
+  </div>
+
+</details>
+{% if not summary.Destination and destination_data.proposals|length == 0 %}
+  <!-- START HERE CARD -->
+  <div class="start-here-card">
+    <div>
+      <span class="page-eyebrow">Start here</span>
+
+      <h3>Add the first route option for your group to vote on.</h3>
+
+      <p>
+        Start by suggesting where the group could go. After the first route is added,
+        this guide will disappear and the trip planner dock will take over.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      onclick="activatePanelAndFocus('destination', 'destination-proposal-input')"
+    >
+      Add Route
+    </button>
+  </div>
+{% endif %}
+
+<!-- TRIP PLANNER DOCK -->
+
+<div class="planner-dock">
+
+  <button
+    type="button"
+    class="planner-step active"
+    onclick="activatePanel('destination')"
+  >
+    <span class="planner-icon">📍</span>
+
+    <span class="planner-text">
+      <strong>Route</strong>
+
+      <small>
+        {% if summary.Destination %}
+          ✓ Decided
+        {% elif destination_data.proposals|length == 0 %}
+          Start here
+        {% else %}
+          {{ destination_data.proposals|length }} options
+        {% endif %}
+      </small>
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="planner-step"
+    onclick="activatePanel('dates')"
+  >
+    <span class="planner-icon">📅</span>
+
+    <span class="planner-text">
+      <strong>Dates</strong>
+
+      <small>
+        {% if summary.Dates %}
+          ✓ Decided
+        {% elif dates_data.proposals|length == 0 %}
+          Add dates
+        {% else %}
+          {{ dates_data.proposals|length }} options
+        {% endif %}
+      </small>
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="planner-step"
+    onclick="activatePanel('transport')"
+  >
+    <span class="planner-icon">✈️</span>
+
+    <span class="planner-text">
+      <strong>Transport</strong>
+
+      <small>
+        {% if summary.Μετάβαση %}
+          ✓ Decided
+        {% elif transport.proposals|length == 0 %}
+          Add options
+        {% else %}
+          {{ transport.proposals|length }} options
+        {% endif %}
+      </small>
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="planner-step"
+    onclick="activatePanel('accommodation')"
+  >
+    <span class="planner-icon">🏨</span>
+
+    <span class="planner-text">
+      <strong>Stay</strong>
+
+      <small>
+        {% if summary.Διαμονή %}
+          ✓ Decided
+        {% elif stay.proposals|length == 0 %}
+          Add stays
+        {% else %}
+          {{ stay.proposals|length }} options
+        {% endif %}
+      </small>
+    </span>
+  </button>
+
+</div>    
+
+    <!-- DESTINATION PANEL -->
+    <div id="panel-destination" class="active-panel visible">
+      <h2>📍 Route</h2>
+      {% include 'card_destination.html' %}
+    </div>
+
+    <!-- DATES PANEL -->
+    <div id="panel-dates" class="active-panel">
+      <h2>📅 Dates</h2>
+      {% include 'card_dates.html' %}
+    </div>
+
+    <!-- TRANSPORT PANEL -->
+    <div id="panel-transport" class="active-panel">
+      <h2>✈️ Transport</h2>
+      {% include 'card_transport.html' %}
+    </div>
+
+    <!-- ACCOMMODATION PANEL -->
+    <div id="panel-accommodation" class="active-panel">
+      <h2>🏨 Accommodation</h2>
+      {% include 'card_accommodation.html' %}
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat-box">
+      <h3 style="margin-top: 0;">💬 Trip Chat</h3>
+
+      <div class="chat-messages" id="chat-messages">
+        <p style="color: var(--text-light);">
+          <em>Loading messages...</em>
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Type a message..."
+          style="flex: 1; margin-bottom: 0;"
+          onkeypress="if(event.key==='Enter') sendMessage()"
+        >
+
+        <button
+          class="btn btn-primary btn-sm"
+          style="flex-shrink: 0; padding: 0.6rem 1.2rem;"
+          onclick="sendMessage()"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+
+    <!-- INVITE MEMBERS -->
+    <div class="invite-card">
+      <h3 style="margin-top: 0;">👥 Invite Members</h3>
+
+      <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">
+        Share this trip with your group.
+      </p>
+
+{% url 'join_trip' trip.pk as join_url %}
+
+<label>Share invite link</label>
+
+<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+  <input
+    type="text"
+    value="{{ request.scheme }}://{{ request.get_host }}{{ join_url }}"
+    readonly
+    onclick="this.select();"
+    style="flex: 1; background: #f5f8fb; cursor: pointer;"
+  >
+
+  <button
+    class="btn btn-primary btn-sm"
+    onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{{ join_url }}')"
+  >
+    Copy
+  </button>
+</div>      
+
+
+      <label>Or send email invitations</label>
+
+      <form method="post" action="{% url 'send_invites' trip.pk %}">
+        {% csrf_token %}
+
+        <textarea
+          name="emails"
+          rows="2"
+          placeholder="friend@example.com, another@example.com"
+        ></textarea>
+
+        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+          Send Invitations
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+
+  <!-- SEARCH ASSISTANT INTRO -->
+  <div class="search-assistant-card">
+    <span class="assistant-eyebrow">Planning tools</span>
+
+    <h2>Travel Search Assistant</h2>
+
+    <p>
+      Search transport and accommodation options, then add the best ones directly to your trip proposals.
+    </p>
+  </div>
+
+  <!-- SEARCH TRANSPORT -->
+  <div class="card search-card">
+    <div class="search-card-header">
+      <div>
+        <span class="search-icon">🔍</span>
+        <h3>Search Transport</h3>
+      </div>
+
+      <p>Find flights, trains, buses, ferries and taxis.</p>
+    </div>
+
+    <div class="transport-tabs">
+      <button class="transport-tab active" onclick="selectTransportTab(this, 'flights')">✈️ Flights</button>
+      <button class="transport-tab" onclick="selectTransportTab(this, 'trains')">🚆 Trains</button>
+      <button class="transport-tab" onclick="selectTransportTab(this, 'buses')">🚌 Buses</button>
+      <button class="transport-tab" onclick="selectTransportTab(this, 'ferries')">🚢 Ferries</button>
+      <button class="transport-tab" onclick="selectTransportTab(this, 'taxi')">🚕 Taxi</button>
+    </div>
+
+    <div class="form-row">
+      <input type="text" id="search-from" placeholder="From">
+      <input type="text" id="search-to" placeholder="To">
+    </div>
+
+    <div class="form-row">
+      <input type="date" id="search-depart">
+      <input type="date" id="search-return">
+    </div>
+
+    <div class="form-row">
+      <input
+        type="number"
+        id="search-passengers"
+        placeholder="Passengers"
+        value="1"
+        min="1"
+      >
+
+      <select id="search-class">
+        <option>Economy</option>
+        <option>Business</option>
+        <option>First Class</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <select id="search-stops">
+        <option>Any stops</option>
+        <option>Direct only</option>
+        <option>1 stop max</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary btn-sm search-main-btn" onclick="searchTransport()">
+      Search Transport
+    </button>
+
+    <div id="transport-results" class="search-results"></div>
+  </div>
+
+  <!-- SEARCH HOTELS -->
+  <div class="card search-card">
+    <div class="search-card-header">
+      <div>
+        <span class="search-icon">🏨</span>
+        <h3>Search Hotels</h3>
+      </div>
+
+      <p>Find accommodation options and add them to the group vote.</p>
+    </div>
+
+    <input
+      type="text"
+      id="hotel-city"
+      placeholder="City or hotel name"
+    >
+
+    <div class="form-row">
+      <input type="date" id="hotel-checkin">
+      <input type="date" id="hotel-checkout">
+    </div>
+
+    <div class="form-row">
+      <input
+        type="number"
+        id="hotel-guests"
+        placeholder="Guests"
+        value="1"
+        min="1"
+      >
+
+      <input
+        type="number"
+        id="hotel-rooms"
+        placeholder="Rooms"
+        value="1"
+        min="1"
+      >
+    </div>
+
+    <button class="btn btn-primary btn-sm search-main-btn" onclick="searchHotels()">
+      Search Hotels
+    </button>
+
+    <div id="hotel-results" class="search-results"></div>
+  </div>
+
+</div>
+
+<script>
+function getCsrfToken() {
+    var tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    return tokenInput ? tokenInput.value : '';
+}
+
+function activatePanel(name) {
+    document.querySelectorAll('.active-panel').forEach(function(panel) {
+        panel.classList.remove('visible');
+    });
+
+    var panel = document.getElementById('panel-' + name);
+    if (panel) {
+        panel.classList.add('visible');
+    }
+
+document.querySelectorAll('.planner-step').forEach(function(step) {
+    step.classList.remove('active');
+});
+
+var activeStep = document.querySelector('.planner-step[onclick*="' + name + '"]');
+if (activeStep) {
+    activeStep.classList.add('active');
+}
+
+    localStorage.setItem('activePanel', name);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var activePanel = localStorage.getItem('activePanel');
+
+    if (activePanel) {
+        activatePanel(activePanel);
+    } else {
+        activatePanel('destination');
+    }
+});
+
+function activatePanelAndFocus(panelName, inputId) {
+    activatePanel(panelName);
+
+    setTimeout(function() {
+        var input = document.getElementById(inputId);
+
+        if (input) {
+            input.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+            input.focus();
+        }
+    }, 180);
+}
+
+function submitVote(selectElement) {
+    var form = selectElement.closest('form');
+    var formData = new FormData(form);
+    var proposalItem = selectElement.closest('.proposal-item');
+    var voteBarFill = proposalItem.querySelector('.vote-bar-fill');
+    var voteText = proposalItem.querySelector('small');
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken') || getCsrfToken()
+        },
+        body: formData
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            if (voteBarFill) {
+                voteBarFill.style.width = Math.round((data.avg_score / 5) * 100) + '%';
+            }
+
+            if (voteText) {
+                voteText.textContent = data.avg_score.toFixed(1) + '/5 (' + data.total_votes + ')';
+            }
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+    });
+}
+
+// ========== CHAT ==========
+
+function loadMessages() {
+    fetch('{% url "trip_chat" trip.pk %}')
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                var container = document.getElementById('chat-messages');
+                container.innerHTML = '';
+
+                if (!data.messages.length) {
+                    container.innerHTML = '<p style="color: var(--text-light);"><em>No messages yet. Start the conversation.</em></p>';
+                    return;
+                }
+
+                data.messages.forEach(function(msg) {
+                    container.innerHTML +=
+                        '<div class="chat-message">' +
+                            '<strong>' + msg.user + '</strong>' +
+                            '<span>' + msg.time + '</span>' +
+                            '<p>' + msg.content + '</p>' +
+                        '</div>';
+                });
+
+                container.scrollTop = container.scrollHeight;
+            }
+        });
+}
+
+function sendMessage() {
+    var input = document.getElementById('chat-input');
+    var content = input.value.trim();
+
+    if (!content) return;
+
+    var formData = new FormData();
+    formData.append('content', content);
+
+    fetch('{% url "trip_chat" trip.pk %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: formData
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            input.value = '';
+            loadMessages();
+        }
+    });
+}
+
+loadMessages();
+setInterval(loadMessages, 3000);
+
+// ========== ADD PROPOSAL ==========
+
+document.querySelectorAll('.add-proposal-form').forEach(function(form) {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var formData = new FormData(form);
+        var button = form.querySelector('button[type="submit"]');
+
+        button.disabled = true;
+        button.textContent = 'Adding...';
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken') || getCsrfToken()
+            },
+            body: formData
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                window.location.reload(true);
+            } else {
+                alert(data.error || 'An error occurred.');
+            }
+        })
+        .catch(function(error) {
+            console.error(error);
+            alert('Network error.');
+        })
+        .finally(function() {
+            button.disabled = false;
+            button.textContent = 'Add Proposal';
+        });
+    });
+});
+
+// ========== SEARCH ==========
+
+var currentTransport = 'flights';
+
+function selectTransportTab(button, type) {
+    document.querySelectorAll('.transport-tab').forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+
+    button.classList.add('active');
+    currentTransport = type;
+}
+
+function searchTransport() {
+    var from = document.getElementById('search-from').value || 'Larnaca';
+    var to = document.getElementById('search-to').value || 'Prague';
+    var depart = document.getElementById('search-depart').value || '2026-07-10';
+    var returnDate = document.getElementById('search-return').value || '2026-07-17';
+    var passengers = document.getElementById('search-passengers').value || '1';
+    var travelClass = document.getElementById('search-class').value;
+    var stops = document.getElementById('search-stops').value;
+    var type = currentTransport;
+
+    var mockResults = {
+        flights: [
+            {
+                title: 'Aegean A3 620',
+                cost: '80',
+                details: '08:00-09:00, Direct, Economy',
+                link: 'https://www.aegeanair.com'
+            },
+            {
+                title: 'Ryanair FR 325',
+                cost: '45',
+                details: '21:25-23:05, Direct, Economy',
+                link: 'https://www.ryanair.com'
+            },
+            {
+                title: 'Smart Wings QS 123',
+                cost: '120',
+                details: '14:00-16:30, 1 stop, Business',
+                link: 'https://www.smartwings.com'
+            }
+        ],
+        trains: [
+            {
+                title: 'RegioJet RJ 456',
+                cost: '35',
+                details: '08:00-12:30, Direct, 2nd Class',
+                link: 'https://www.regiojet.com'
+            },
+            {
+                title: 'České dráhy EC 178',
+                cost: '55',
+                details: '10:00-14:30, Direct, 1st Class',
+                link: 'https://www.cd.cz'
+            }
+        ],
+        buses: [
+            {
+                title: 'FlixBus 1234',
+                cost: '25',
+                details: '08:00-14:00, Direct',
+                link: 'https://www.flixbus.com'
+            },
+            {
+                title: 'RegioJet Bus 789',
+                cost: '22',
+                details: '12:00-18:00, Direct',
+                link: 'https://www.regiojet.com'
+            }
+        ],
+        ferries: [
+            {
+                title: 'Aegean Speed Lines',
+                cost: '50',
+                details: '09:00-14:00, Economy',
+                link: 'https://www.aegeanspeedlines.gr'
+            }
+        ],
+        taxi: [
+            {
+                title: 'Welcome Pickups',
+                cost: '60',
+                details: 'Private transfer, 1-3 passengers',
+                link: 'https://www.welcomepickups.com'
+            },
+            {
+                title: 'Uber',
+                cost: '45',
+                details: 'Standard, 1-4 passengers',
+                link: 'https://www.uber.com'
+            }
+        ]
+    };
+
+    var results = mockResults[type] || [];
+    var html =
+        '<p style="color: var(--text-light); font-size: 0.85rem; margin-bottom: 0.5rem;">' +
+            '<em>Results for ' + from + ' → ' + to + ' (' + travelClass + ', ' + stops + ', ' + passengers + ' passenger' + (passengers != 1 ? 's' : '') + '):</em>' +
+        '</p>';
+
+    results.forEach(function(item) {
+        html +=
+            '<div>' +
+                '<strong>' + item.title + '</strong><br>' +
+                '<span>€' + item.cost + '</span> · ' + item.details + '<br>' +
+                '<div style="display: flex; gap: 0.5rem; margin-top: 0.45rem;">' +
+                    '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\')">+ Add</button>' +
+                    '<a href="' + item.link + '" target="_blank" class="btn btn-sm" style="flex: 1; font-size: 0.85rem; background: var(--gold); color: white; text-align: center; text-decoration: none;">Buy Now</a>' +
+                '</div>' +
+            '</div>';
+    });
+
+    document.getElementById('transport-results').innerHTML =
+        html || '<p style="color: var(--text-light);">No results found.</p>';
+}
+
+function searchHotels() {
+    var city = document.getElementById('hotel-city').value || 'Prague';
+    var checkin = document.getElementById('hotel-checkin').value || '2026-07-10';
+    var checkout = document.getElementById('hotel-checkout').value || '2026-07-17';
+    var guests = document.getElementById('hotel-guests').value || '1';
+    var rooms = document.getElementById('hotel-rooms').value || '1';
+
+    var mockResults = [
+        {
+            title: 'Hotel Paris',
+            cost: '120',
+            details: '★★★★, City Center, 1 room, ' + guests + ' guest(s)',
+            link: 'https://www.booking.com'
+        },
+        {
+            title: 'Prague Plaza',
+            cost: '85',
+            details: '★★★, Old Town, ' + rooms + ' room(s)',
+            link: 'https://www.booking.com'
+        },
+        {
+            title: 'Riverside Hostel',
+            cost: '35',
+            details: '★★, Near Charles Bridge',
+            link: 'https://www.booking.com'
+        }
+    ];
+
+    var html =
+        '<p style="color: var(--text-light); font-size: 0.85rem; margin-bottom: 0.5rem;">' +
+            '<em>Results for ' + city + ' (' + checkin + ' – ' + checkout + ', ' + guests + ' guest(s), ' + rooms + ' room(s)):</em>' +
+        '</p>';
+
+    mockResults.forEach(function(item) {
+        html +=
+            '<div>' +
+                '<strong>' + item.title + '</strong><br>' +
+                '<span>€' + item.cost + '</span> · ' + item.details + '<br>' +
+                '<div style="display: flex; gap: 0.5rem; margin-top: 0.45rem;">' +
+                    '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\')">+ Add</button>' +
+                    '<a href="' + item.link + '" target="_blank" class="btn btn-sm" style="flex: 1; font-size: 0.85rem; background: var(--gold); color: white; text-align: center; text-decoration: none;">Book Now</a>' +
+                '</div>' +
+            '</div>';
+    });
+
+    document.getElementById('hotel-results').innerHTML = html;
+}
+
+function addToProposal(title, cost, link) {
+    var activePanel = document.querySelector('.active-panel.visible');
+
+    if (!activePanel) {
+        alert('Please select a category first.');
+        return;
+    }
+
+    var titleInput = activePanel.querySelector('input[name="title"]');
+    var costInput = activePanel.querySelector('input[name="cost"]');
+    var linkInput = activePanel.querySelector('input[name="link"]');
+
+    if (titleInput) titleInput.value = title;
+    if (costInput) costInput.value = cost;
+    if (linkInput) linkInput.value = link;
+
+    var addForm = activePanel.querySelector('.add-proposal-form');
+
+    if (addForm) {
+        addForm.scrollIntoView({ behavior: 'smooth' });
+
+        var submitButton = addForm.querySelector('button[type="submit"]');
+
+        if (submitButton) {
+            submitButton.focus();
+        }
+    }
+}
+
+function toggleLock(button, proposalId) {
+    var box = button.closest('.proposal-item');
+    var isCurrentlyLocked = box.classList.contains('locked');
+    var url = isCurrentlyLocked ? '/proposal/' + proposalId + '/unlock/' : '/proposal/' + proposalId + '/lock/';
+
+    button.disabled = true;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: new FormData()
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            if (data.is_locked) {
+                box.classList.add('locked');
+                button.textContent = 'Unlock';
+                button.style.background = '#e0883a';
+
+                var editButton = box.querySelector('a[href*="edit_proposal"]');
+                if (editButton) editButton.style.display = 'none';
+
+                var deleteButton = box.querySelector('button[onclick*="deleteProposal"]');
+                if (deleteButton) deleteButton.style.display = 'none';
+            } else {
+                box.classList.remove('locked');
+                button.textContent = 'Agree';
+                button.style.background = '#1c5485';
+
+                var editButtonVisible = box.querySelector('a[href*="edit_proposal"]');
+                if (editButtonVisible) editButtonVisible.style.display = '';
+
+                var deleteButtonVisible = box.querySelector('button[onclick*="deleteProposal"]');
+                if (deleteButtonVisible) deleteButtonVisible.style.display = '';
+            }
+
+            if (data.summary_update) {
+                updateSummary(data.summary_update.category_name, data.summary_update.titles);
+            }
+        } else {
+            alert(data.error || 'An error occurred.');
+        }
+    })
+    .catch(function(error) {
+        console.error(error);
+        alert('Network error.');
+    })
+    .finally(function() {
+        button.disabled = false;
+    });
+}
+
+function deleteProposal(button, proposalId) {
+    if (!confirm('Delete this proposal?')) return;
+
+    var box = button.closest('.proposal-item');
+    var panel = button.closest('.active-panel');
+
+    fetch('/proposal/' + proposalId + '/delete/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: new FormData()
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            box.style.transition = 'opacity 0.3s, transform 0.3s';
+            box.style.opacity = '0';
+            box.style.transform = 'scale(0.95)';
+
+            setTimeout(function() {
+                box.remove();
+
+                var counter = panel.querySelector('p em');
+
+                if (counter) {
+                    counter.textContent = data.proposals_count + '/' + data.max_proposals + ' proposals';
+                }
+            }, 300);
+        } else {
+            alert(data.error || 'An error occurred.');
+        }
+    });
+}
+
+function updateSummary(categoryName, titles) {
+    var summaryItems = document.querySelectorAll('.summary-item');
+
+    var labelMap = {
+        'Destination': 'Route',
+        'Dates': 'Dates',
+        'Μετάβαση': 'Transport',
+        'Διαμονή': 'Accommodation'
+    };
+
+    var targetLabel = labelMap[categoryName];
+
+    summaryItems.forEach(function(item) {
+        var label = item.querySelector('.summary-label').textContent.trim();
+
+        if (label === targetLabel) {
+            var valueSpan = item.querySelector('.summary-value');
+
+            if (titles.length > 0) {
+                valueSpan.textContent = titles.join(' → ');
+            } else {
+                valueSpan.textContent = 'Not yet';
+            }
+        }
+    });
+}
+
+
+
+</script>
+</body>
+</html>

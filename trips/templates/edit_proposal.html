@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Proposal – Etheria</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <a href="/" class="logo">🌌 Etheria</a>
+  </div>
+
+  <div class="nav-links">
+    <a href="{% url 'trip_detail' proposal.category.trip.pk %}">Back to Trip</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="form-page-card">
+
+    <div class="form-page-header">
+      <span class="page-eyebrow">Trip proposal</span>
+
+      <h1>Edit Proposal</h1>
+
+      <p>
+        Update this option and return to the trip so your group can continue voting.
+      </p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="field-group">
+        <label>Proposal title</label>
+
+        <input
+          type="text"
+          name="title"
+          value="{{ proposal.title }}"
+          required
+        >
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          Save Changes
+        </button>
+
+        <a
+          href="{% url 'trip_detail' proposal.category.trip.pk %}"
+          class="btn btn-secondary"
+        >
+          Cancel
+        </a>
+      </div>
+    </form>
+
+  </div>
+
+</div>
+
+</body>
+</html>

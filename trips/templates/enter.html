@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Etheria</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="auth-page">
+
+  <div class="auth-card">
+
+    <a href="/" class="auth-logo">🌌 Etheria</a>
+
+    <div class="auth-icon">✈️</div>
+
+    <h1>Welcome to Etheria</h1>
+
+    <p>
+      Log in or create an account to start planning group trips with your people.
+    </p>
+
+    <div class="auth-actions">
+      <a href="{% url 'account_login' %}" class="btn btn-primary">
+        Log In
+      </a>
+
+      <a href="{% url 'account_signup' %}" class="btn btn-secondary">
+        Sign Up
+      </a>
+    </div>
+
+    <a href="/" class="auth-back-link">
+      ← Back to Home
+    </a>
+
+  </div>
+
+</body>
+</html>

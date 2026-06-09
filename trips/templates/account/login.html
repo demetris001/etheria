@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – TravelZ</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">TravelZ</a>
+    <div class="nav-links">
+      <a href="{% url 'account_signup' %}">Sign Up</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card form-card">
+      <h1>Welcome back</h1>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn" style="width:100%;">Login</button>
+      </form>
+      <p style="text-align:center; margin-top:1rem;">
+        <a href="{% url 'account_signup' %}">Don't have an account? Sign Up</a>
+      </p>
+    </div>
+  </div>
+
+  <footer class="footer"><p>&copy; 2026 TravelZ</p></footer>
+</body>
+</html>
