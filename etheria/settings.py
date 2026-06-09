@@ -69,7 +69,7 @@ MIDDLEWARE = [
 
 ]
 
-ROOT_URLCONF = 'travelz.urls'
+ROOT_URLCONF = 'etheria.urls'
 
 TEMPLATES = [
     {
@@ -86,7 +86,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'travelz.wsgi.application'
+WSGI_APPLICATION = 'etheria.wsgi.application'
 
 
 # Database
