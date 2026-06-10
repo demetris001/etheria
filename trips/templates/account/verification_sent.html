@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Your Email – Etheria</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="auth-form-page">
+  <main class="auth-form-shell">
+    <section class="auth-form-card">
+      <a href="/" class="auth-logo">✈️ Etheria</a>
+
+      <h1>Check your email</h1>
+
+      <p class="auth-form-subtitle">
+        We sent you a confirmation link. Open your inbox and confirm your email address to continue using Etheria.
+      </p>
+
+      <p class="auth-switch">
+        Already confirmed?
+        <a href="{% url 'account_login' %}">Log In</a>
+      </p>
+    </section>
+  </main>
+</body>
+</html>
