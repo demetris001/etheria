@@ -4,31 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Out – TravelZ</title>
+  <title>Sign Out – Etheria</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-  <nav class="navbar">
-    <a href="/" class="logo">TravelZ</a>
-    <div class="nav-links">
-      <a href="{% url 'dashboard' %}">Dashboard</a>
-    </div>
-  </nav>
 
-  <div class="container">
-    <div class="card form-card">
-      <h1>Sign Out</h1>
-      <p style="text-align:center;">Are you sure you want to sign out?</p>
-      <form method="post" action="{% url 'account_logout' %}" style="text-align:center; margin-top:1.5rem;">
-        {% csrf_token %}
-        <button type="submit" class="btn">Yes, sign out</button>
-      </form>
-      <p style="text-align:center; margin-top:1rem;">
-        <a href="{% url 'dashboard' %}">Cancel</a>
+<body class="auth-form-page">
+  <main class="auth-form-shell">
+    <section class="auth-form-card">
+      <a href="/" class="auth-logo">✈️ Etheria</a>
+
+      <h1>Sign out?</h1>
+      <p class="auth-form-subtitle">
+        Are you sure you want to sign out of Etheria?
       </p>
-    </div>
-  </div>
 
-  <footer class="footer"><p>&copy; 2026 TravelZ</p></footer>
+      <form method="post" action="{% url 'account_logout' %}" class="auth-form">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-primary btn-full">
+          Yes, sign out
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Changed your mind?
+        <a href="{% url 'my_trips' %}">Cancel</a>
+      </p>
+    </section>
+  </main>
 </body>
 </html>

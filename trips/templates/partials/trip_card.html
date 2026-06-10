@@ -1,0 +1,64 @@
+<div class="trip-card-small-wrapper">
+
+  <a href="{% url 'trip_detail' trip.pk %}" class="trip-card-small">
+
+    <div class="trip-card-top">
+      <div class="trip-card-icon">✈️</div>
+
+      <span class="status-badge status-{{ trip.status }}">
+        {{ trip.status }}
+      </span>
+    </div>
+
+    <div class="trip-card-body">
+      <span class="trip-card-kicker">Group trip</span>
+
+      <h3>{{ trip.title }}</h3>
+
+      {% if trip.destination %}
+        <p class="trip-destination">
+          <span>📍</span>
+          {{ trip.destination }}
+        </p>
+      {% else %}
+        <p class="trip-destination muted">
+          <span>📍</span>
+          Destination not set yet
+        </p>
+      {% endif %}
+
+      <p class="trip-dates">
+        <span>📅</span>
+
+        {% for trip_id, dates in trip_dates.items %}
+          {% if trip_id == trip.id and dates %}
+            {{ dates }}
+          {% elif trip_id == trip.id and not dates %}
+            Dates not set yet
+          {% endif %}
+        {% endfor %}
+      </p>
+    </div>
+
+    <div class="trip-card-footer">
+      <span>Open trip</span>
+      <span class="trip-card-arrow">→</span>
+    </div>
+
+  </a>
+
+  {% if user == trip.leader %}
+    <form
+      method="post"
+      action="{% url 'delete_trip' trip.pk %}"
+      class="delete-form"
+      onsubmit="return confirm('Delete this trip?');"
+    >
+      {% csrf_token %}
+      <button type="submit" class="btn-delete" title="Delete trip">
+        ×
+      </button>
+    </form>
+  {% endif %}
+
+</div>

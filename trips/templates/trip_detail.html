@@ -12,13 +12,14 @@
 
 <nav class="navbar">
   <div class="nav-brand">
-    <a href="/" class="logo">🌌 Etheria</a>
+    <a href="/" class="logo">✈️ Etheria</a>
   </div>
 
   <div class="nav-links">
-    <a href="{% url 'my_trips' %}">My Trips</a>
-    <a href="{% url 'account_logout' %}">Logout</a>
-  </div>
+  <a href="{% url 'my_trips' %}">My Trips</a>
+  <a href="{% url 'create_trip' %}">Create Trip</a>
+  <a href="{% url 'account_logout' %}">Logout</a>
+</div>
 </nav>
 
 <!-- Hidden CSRF token for AJAX actions -->
@@ -157,9 +158,7 @@
 {% endif %}
 
 <!-- TRIP PLANNER DOCK -->
-
 <div class="planner-dock">
-
   <button
     type="button"
     class="planner-step active"
@@ -250,7 +249,7 @@
 
 </div>    
 
-    <!-- DESTINATION PANEL -->
+<!-- DESTINATION PANEL -->
     <div id="panel-destination" class="active-panel visible">
       <h2>📍 Route</h2>
       {% include 'card_destination.html' %}
@@ -273,87 +272,95 @@
       <h2>🏨 Accommodation</h2>
       {% include 'card_accommodation.html' %}
     </div>
-
-    <!-- CHAT -->
-    <div class="chat-box">
-      <h3 style="margin-top: 0;">💬 Trip Chat</h3>
-
-      <div class="chat-messages" id="chat-messages">
-        <p style="color: var(--text-light);">
-          <em>Loading messages...</em>
-        </p>
-      </div>
-
-      <div style="display: flex; gap: 0.5rem;">
-        <input
-          type="text"
-          id="chat-input"
-          placeholder="Type a message..."
-          style="flex: 1; margin-bottom: 0;"
-          onkeypress="if(event.key==='Enter') sendMessage()"
-        >
-
-        <button
-          class="btn btn-primary btn-sm"
-          style="flex-shrink: 0; padding: 0.6rem 1.2rem;"
-          onclick="sendMessage()"
-        >
-          Send
-        </button>
-      </div>
+<!-- CHAT -->
+<div class="chat-box">
+  <div class="chat-header">
+    <div>
+      <span class="chat-eyebrow">Group conversation</span>
+      <h3>💬 Trip Chat</h3>
     </div>
+  </div>
 
-    <!-- INVITE MEMBERS -->
-    <div class="invite-card">
-      <h3 style="margin-top: 0;">👥 Invite Members</h3>
+  <div class="chat-messages" id="chat-messages">
+    <p class="chat-empty-message">
+      <em>Loading messages...</em>
+    </p>
+  </div>
 
-      <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">
-        Share this trip with your group.
-      </p>
+  <div class="chat-input-row">
+    <input
+      type="text"
+      id="chat-input"
+      placeholder="Type a message..."
+      onkeypress="if(event.key==='Enter') sendMessage()"
+    >
 
-{% url 'join_trip' trip.pk as join_url %}
-
-<label>Share invite link</label>
-
-<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-  <input
-    type="text"
-    value="{{ request.scheme }}://{{ request.get_host }}{{ join_url }}"
-    readonly
-    onclick="this.select();"
-    style="flex: 1; background: #f5f8fb; cursor: pointer;"
-  >
-
-  <button
-    class="btn btn-primary btn-sm"
-    onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{{ join_url }}')"
-  >
-    Copy
-  </button>
-</div>      
-
-
-      <label>Or send email invitations</label>
-
-      <form method="post" action="{% url 'send_invites' trip.pk %}">
-        {% csrf_token %}
-
-        <textarea
-          name="emails"
-          rows="2"
-          placeholder="friend@example.com, another@example.com"
-        ></textarea>
-
-        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
-          Send Invitations
-        </button>
-      </form>
-    </div>
-
+    <button
+      class="btn btn-primary btn-sm chat-send-btn"
+      onclick="sendMessage()"
+    >
+      Send
+    </button>
   </div>
 </div>
+
+</div>
+<!-- INVITE MEMBERS -->
+<div class="invite-card">
+  <div class="invite-header">
+    <span class="invite-eyebrow">Share the trip</span>
+    <h3>👥 Invite Members</h3>
+    <p>Invite your group with a link or by email.</p>
+  </div>
+
+  {% url 'join_trip' trip.pk as join_url %}
+
+  <label>Share invite link</label>
+
+  <div class="invite-link-row">
+    <input
+      type="text"
+      value="{{ request.scheme }}://{{ request.get_host }}{{ join_url }}"
+      readonly
+      onclick="this.select();"
+    >
+
+    <button
+      class="btn btn-primary btn-sm"
+      onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{{ join_url }}')"
+    >
+      Copy
+    </button>
+  </div>
+
+  <label>Or send email invitations</label>
+
+  <form method="post" action="{% url 'send_invites' trip.pk %}" class="invite-form">
+    {% csrf_token %}
+
+    <textarea
+      name="emails"
+      rows="2"
+      placeholder="friend@example.com, another@example.com"
+    ></textarea>
+
+    <button type="submit" class="btn btn-primary btn-sm btn-full">
+      Send Invitations
+    </button>
+  </form>
+</div>
+
+
+</div>
+
+
 <!-- RIGHT PANEL -->
 <div class="right-panel">
+
+<div class="mobile-search-divider">
+    <span>✈️ Travel Assistant</span>
+    <p>Search flights, transport and accommodation for this trip.</p>
+  </div>
 
   <!-- SEARCH ASSISTANT INTRO -->
   <div class="search-assistant-card">
@@ -863,8 +870,11 @@ function addToProposal(title, cost, link) {
 
 function toggleLock(button, proposalId) {
     var box = button.closest('.proposal-item');
+    var panel = button.closest('.active-panel');
     var isCurrentlyLocked = box.classList.contains('locked');
-    var url = isCurrentlyLocked ? '/proposal/' + proposalId + '/unlock/' : '/proposal/' + proposalId + '/lock/';
+    var url = isCurrentlyLocked
+        ? '/proposal/' + proposalId + '/unlock/'
+        : '/proposal/' + proposalId + '/lock/';
 
     button.disabled = true;
 
@@ -880,34 +890,63 @@ function toggleLock(button, proposalId) {
         return response.json();
     })
     .then(function(data) {
-        if (data.success) {
-            if (data.is_locked) {
-                box.classList.add('locked');
-                button.textContent = 'Unlock';
-                button.style.background = '#e0883a';
-
-                var editButton = box.querySelector('a[href*="edit_proposal"]');
-                if (editButton) editButton.style.display = 'none';
-
-                var deleteButton = box.querySelector('button[onclick*="deleteProposal"]');
-                if (deleteButton) deleteButton.style.display = 'none';
-            } else {
-                box.classList.remove('locked');
-                button.textContent = 'Agree';
-                button.style.background = '#1c5485';
-
-                var editButtonVisible = box.querySelector('a[href*="edit_proposal"]');
-                if (editButtonVisible) editButtonVisible.style.display = '';
-
-                var deleteButtonVisible = box.querySelector('button[onclick*="deleteProposal"]');
-                if (deleteButtonVisible) deleteButtonVisible.style.display = '';
-            }
-
-            if (data.summary_update) {
-                updateSummary(data.summary_update.category_name, data.summary_update.titles);
-            }
-        } else {
+        if (!data.success) {
             alert(data.error || 'An error occurred.');
+            return;
+        }
+
+        var proposals = panel
+            ? panel.querySelectorAll('.proposal-item')
+            : document.querySelectorAll('.proposal-item');
+
+        proposals.forEach(function(item) {
+            var itemId = item.getAttribute('data-proposal-id');
+            var lockButton = item.querySelector('button[onclick*="toggleLock"]');
+            var editButton = item.querySelector('a[href*="edit_proposal"], .proposal-edit-btn');
+            var deleteButton = item.querySelector('button[onclick*="deleteProposal"], .proposal-delete-btn');
+            var badge = item.querySelector('.proposal-badge');
+
+            if (!lockButton) return;
+
+            if (String(itemId) === String(proposalId) && data.is_locked) {
+                item.classList.add('locked');
+
+                lockButton.textContent = 'Unlock';
+                lockButton.classList.remove('btn-primary');
+                lockButton.classList.add('btn-gold');
+                lockButton.style.background = '';
+                lockButton.style.color = '';
+
+                if (editButton) editButton.style.display = 'none';
+                if (deleteButton) deleteButton.style.display = 'none';
+
+                if (badge) {
+                    badge.classList.remove('proposal-badge-open');
+                    badge.classList.add('proposal-badge-locked');
+                    badge.textContent = getLockedBadgeText(panel);
+                }
+            } else {
+                item.classList.remove('locked');
+
+                lockButton.textContent = 'Agree';
+                lockButton.classList.remove('btn-gold');
+                lockButton.classList.add('btn-primary');
+                lockButton.style.background = '';
+                lockButton.style.color = '';
+
+                if (editButton) editButton.style.display = '';
+                if (deleteButton) deleteButton.style.display = '';
+
+                if (badge) {
+                    badge.classList.remove('proposal-badge-locked');
+                    badge.classList.add('proposal-badge-open');
+                    badge.textContent = 'Open for voting';
+                }
+            }
+        });
+
+        if (data.summary_update) {
+            updateSummary(data.summary_update.category_name, data.summary_update.titles);
         }
     })
     .catch(function(error) {
@@ -917,6 +956,17 @@ function toggleLock(button, proposalId) {
     .finally(function() {
         button.disabled = false;
     });
+}
+
+function getLockedBadgeText(panel) {
+    if (!panel) return 'Agreed option';
+
+    if (panel.id === 'panel-destination') return 'Agreed route';
+    if (panel.id === 'panel-dates') return 'Agreed dates';
+    if (panel.id === 'panel-transport') return 'Agreed transport';
+    if (panel.id === 'panel-accommodation') return 'Agreed stay';
+
+    return 'Agreed option';
 }
 
 function deleteProposal(button, proposalId) {
@@ -958,8 +1008,6 @@ function deleteProposal(button, proposalId) {
 }
 
 function updateSummary(categoryName, titles) {
-    var summaryItems = document.querySelectorAll('.summary-item');
-
     var labelMap = {
         'Destination': 'Route',
         'Dates': 'Dates',
@@ -969,21 +1017,27 @@ function updateSummary(categoryName, titles) {
 
     var targetLabel = labelMap[categoryName];
 
-    summaryItems.forEach(function(item) {
-        var label = item.querySelector('.summary-label').textContent.trim();
+    if (!targetLabel) return;
+
+    document.querySelectorAll('.ticket-field').forEach(function(field) {
+        var labelElement = field.querySelector('.ticket-field-label');
+        var valueElement = field.querySelector('.ticket-field-value');
+
+        if (!labelElement || !valueElement) return;
+
+        var label = labelElement.textContent.trim();
 
         if (label === targetLabel) {
-            var valueSpan = item.querySelector('.summary-value');
-
             if (titles.length > 0) {
-                valueSpan.textContent = titles.join(' → ');
+                valueElement.textContent = titles.join(' → ');
+                field.classList.add('is-set');
             } else {
-                valueSpan.textContent = 'Not yet';
+                valueElement.textContent = 'Not yet';
+                field.classList.remove('is-set');
             }
         }
     });
 }
-
 
 
 </script>

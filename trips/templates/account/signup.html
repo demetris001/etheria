@@ -4,31 +4,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up – TravelZ</title>
+  <title>Sign Up – Etheria</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-  <nav class="navbar">
-    <a href="/" class="logo">TravelZ</a>
-    <div class="nav-links">
-      <a href="{% url 'account_login' %}">Login</a>
-    </div>
-  </nav>
 
-  <div class="container">
-    <div class="card form-card">
+<body class="auth-form-page">
+  <main class="auth-form-shell">
+    <section class="auth-form-card">
+      <a href="/" class="auth-logo">✈️ Etheria</a>
+
       <h1>Create your account</h1>
-      <form method="post">
+      <p class="auth-form-subtitle">
+        Join Etheria and start organizing trips with your people.
+      </p>
+
+      <form method="post" class="auth-form">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn" style="width:100%;">Sign Up</button>
-      </form>
-      <p style="text-align:center; margin-top:1rem;">
-        <a href="{% url 'account_login' %}">Already have an account? Login</a>
-      </p>
-    </div>
-  </div>
 
-  <footer class="footer"><p>&copy; 2026 TravelZ</p></footer>
+        <button type="submit" class="btn btn-primary btn-full">
+          Sign Up
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a href="{% url 'account_login' %}">Log In</a>
+      </p>
+    </section>
+  </main>
 </body>
 </html>

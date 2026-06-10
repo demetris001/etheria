@@ -7,23 +7,58 @@
   <title>Create Trip – Etheria</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-  <div class="container">
-    <a href="/" class="back-link">← Back</a>
-    
-    <div class="trip-card">
-      <h1 class="card-title">Create a New Trip</h1>
-      <p class="card-subtitle">Start your group adventure</p>
-      
-      <form method="post">
-        {% csrf_token %}
-        <div class="field-group">
-          <label for="trip-name">Trip Name</label>
-          <input type="text" id="trip-name" name="title" placeholder="Summer in Prague" required>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">Create Trip</button>
-      </form>
-    </div>
+
+<body class="create-trip-page">
+  <main class="create-trip-shell">
+    <section class="create-trip-hero">
+      <a href="{% url 'my_trips' %}" class="back-link">← Back to My Trips</a>
+
+      <div class="trip-card create-trip-card">
+        <div class="card-icon">✈️</div>
+
+        <h1 class="card-title">Create a New Trip</h1>
+        <p class="card-subtitle">
+          Start planning your next group adventure with friends, family or colleagues.
+        </p>
+
+        <form method="post" class="create-trip-form">
+          {% csrf_token %}
+
+  <section class="create-trip-hero">
+  <a href="{% url 'my_trips' %}" class="back-link">← Back to My Trips</a>
+
+  <div class="trip-card create-trip-card">
+    <div class="card-icon">✈️</div>
+
+    <h1 class="card-title">Create a New Trip</h1>
+    <p class="card-subtitle">
+      Start planning your next group adventure with friends, family or colleagues.
+    </p>
+
+    <form method="post" class="create-trip-form">
+      {% csrf_token %}
+
+      <div class="field-group">
+        <label for="trip-name">Trip Name</label>
+        <input
+          type="text"
+          id="trip-name"
+          name="title"
+          placeholder="e.g. Summer in Prague"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">
+        Create Trip
+      </button>
+    </form>
+
+    <p class="auth-hint">
+      You can edit trip details after creating it.
+    </p>
   </div>
+</section>
+  </main>
 </body>
 </html>

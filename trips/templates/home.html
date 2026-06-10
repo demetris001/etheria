@@ -7,51 +7,70 @@
   <title>Etheria – Plan together, travel together</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body class="landing-page">
 
-  <section class="landing">
-    <div class="landing-content">
-      <h1 class="landing-title">Etheria</h1>
+<body class="home-landing-page">
 
-      <p class="landing-subtitle">
-        Organize group trips without endless messages.
+  <nav class="home-nav">
+    <a href="/" class="home-logo">✈️ Etheria</a>
+
+    <div class="home-nav-actions">
+      <a href="{% url 'my_trips' %}" class="btn btn-secondary">My Trips</a>
+      <a href="{% url 'create_trip' %}" class="btn btn-primary">Create Trip</a>
+      <a href="{% url 'account_logout' %}" class="btn btn-secondary btn-logout">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="home-hero">
+    <section class="home-hero-card">
+      <span class="home-badge">🌍 Plan trips together</span>
+
+      <h1>Plan together,<br>travel better.</h1>
+
+      <p>
+        Create a shared trip page, invite your group, vote on destinations,
+        dates and ideas, and agree without endless messages.
       </p>
 
-      <p class="landing-slogan">
-      Create a shared trip page, invite your group, vote on options and agree together.
-      </p>
-
-      <div class="landing-actions">
-        <a href="{% url 'create_trip' %}" class="btn btn-primary">Create Trip</a>
-        {% if user.is_authenticated %}
-          <a href="{% url 'my_trips' %}" class="btn btn-secondary">My Trips</a>
-        {% endif %}
-
+      <div class="home-actions">
+        <a href="{% url 'create_trip' %}" class="btn btn-primary">✈️ Create Trip</a>
+        <a href="{% url 'my_trips' %}" class="btn btn-secondary">View My Trips</a>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="features">
-    <div class="feature">
-      <h3>📅 Vote on dates</h3>
-      <p>Find the dates that work for everyone.</p>
-    </div>
+    <section class="home-features">
+      <div class="home-feature">
+        <div class="feature-icon">👥</div>
+        <div>
+          <h3>Group Trips</h3>
+          <p>Create trips and invite your people.</p>
+        </div>
+      </div>
 
-    <div class="feature">
-      <h3>📍 Choose destinations</h3>
-      <p>Let the group decide together.</p>
-    </div>
+      <div class="home-feature">
+        <div class="feature-icon">🗳️</div>
+        <div>
+          <h3>Vote Together</h3>
+          <p>Propose ideas and vote as a group.</p>
+        </div>
+      </div>
 
-    <div class="feature">
-      <h3>💰 Split expenses</h3>
-      <p>Keep track of shared costs easily.</p>
-    </div>
+      <div class="home-feature">
+        <div class="feature-icon">📅</div>
+        <div>
+          <h3>Plan Everything</h3>
+          <p>Organize destinations, dates and activities.</p>
+        </div>
+      </div>
 
-    <div class="feature">
-      <h3>✈️ Travel stress-free</h3>
-      <p>Keep the whole trip organized in one place.</p>
-    </div>
-  </section>
+      <div class="home-feature">
+        <div class="feature-icon">🧳</div>
+        <div>
+          <h3>Travel Better</h3>
+          <p>Keep everything clear in one place.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
 </body>
 </html>

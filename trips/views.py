@@ -22,27 +22,33 @@ def join_trip_info(request):
 
 @login_required
 def my_trips(request):
-    trips = Trip.objects.filter(participants__user=request.user).distinct().order_by('-created_at')
+    trips = (
+        Trip.objects
+        .filter(participants__user=request.user)
+        .distinct()
+        .order_by('-created_at')
+    )
 
-    # Βρες τις κλειδωμένες ημερομηνίες για κάθε ταξίδι
+    created_trips = trips.filter(leader=request.user)
+    participating_trips = trips.exclude(leader=request.user)
+
     trip_dates = {}
+
     for trip in trips:
         dates_category = trip.categories.filter(name='Dates').first()
+
         if dates_category:
             locked_dates = dates_category.proposals.filter(is_locked=True).order_by('created_at')
-            if locked_dates.exists():
-                trip_dates[trip.id] = locked_dates.first().title
-            else:
-                trip_dates[trip.id] = None
+            trip_dates[trip.id] = locked_dates.first().title if locked_dates.exists() else None
         else:
             trip_dates[trip.id] = None
 
     return render(request, 'my_trips.html', {
         'trips': trips,
+        'created_trips': created_trips,
+        'participating_trips': participating_trips,
         'trip_dates': trip_dates,
     })
-
-
 
 @login_required
 def create_trip(request):
