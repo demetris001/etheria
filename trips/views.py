@@ -261,8 +261,17 @@ def send_invites(request, pk):
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[email],
                     fail_silently=True,
+                   )
+            if len(email_list) == 1:
+                messages.success(
+                request,
+                f"Invitation successfully sent to {email_list[0]}."
                 )
-            messages.success(request, f"Invitations sent to {len(email_list)} recipient(s).")
+            else:
+                messages.success(
+                request,
+                f"Invitations successfully sent to: {', '.join(email_list)}."
+                )
         else:
             messages.warning(request, "No valid email addresses provided.")
     return redirect('trip_detail', pk=pk)
