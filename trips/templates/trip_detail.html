@@ -948,8 +948,8 @@ function toggleLock(button, proposalId) {
             button.style.background = '';
             button.style.color = '';
 
-            if (editButton) editButton.style.display = 'none';
-            if (deleteButton) deleteButton.style.display = 'none';
+           if (editButton) editButton.classList.add('is-hidden-action');
+           if (deleteButton) deleteButton.classList.add('is-hidden-action');
 
             if (badge) {
                 badge.classList.remove('proposal-badge-open');
@@ -965,8 +965,8 @@ function toggleLock(button, proposalId) {
             button.style.background = '';
             button.style.color = '';
 
-            if (editButton) editButton.style.display = '';
-            if (deleteButton) deleteButton.style.display = '';
+            if (editButton) editButton.classList.remove('is-hidden-action');
+            if (deleteButton) deleteButton.classList.remove('is-hidden-action');
 
             if (badge) {
                 badge.classList.remove('proposal-badge-locked');

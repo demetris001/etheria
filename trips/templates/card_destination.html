@@ -1,15 +1,13 @@
 {% if destination_data %}
 
-  <div class="panel-intro" style="margin-bottom: 1rem;">
-    <p style="color: var(--text-light); font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.6rem;">
+  <div class="panel-intro">
+    <p>
       Suggest possible routes and let the group vote for the best option.
     </p>
 
-    <p style="margin-bottom: 0;">
-      <em style="color: var(--text-light); font-size: 0.9rem;">
-        {{ destination_data.proposals|length }}/{{ destination_data.category.max_proposals }} proposals
-      </em>
-    </p>
+    <em>
+      {{ destination_data.proposals|length }}/{{ destination_data.category.max_proposals }} proposals
+    </em>
   </div>
 
   {% if destination_data.proposals %}
@@ -20,125 +18,76 @@
         <div
           class="proposal-item {% if item.proposal.is_locked %}locked{% endif %}"
           data-proposal-id="{{ item.proposal.pk }}"
-          style="display: block;"
         >
 
-          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem;">
+          <div class="proposal-header">
 
-            <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-
-              <div
-                style="
-                  width: 42px;
-                  height: 42px;
-                  border-radius: 12px;
-                  background: var(--blue-pale);
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  flex-shrink: 0;
-                  font-size: 1.25rem;
-                "
-              >
-                📍
-              </div>
+            <div class="proposal-title-row">
+              <div class="proposal-icon">📍</div>
 
               <div>
-                <strong style="display: block; font-size: 1rem; margin-bottom: 0.25rem;">
+                <strong class="proposal-title">
                   {{ item.proposal.title }}
                 </strong>
 
                 {% if item.proposal.is_locked %}
-                  <span
-                    style="
-                      display: inline-block;
-                      padding: 0.2rem 0.6rem;
-                      border-radius: 999px;
-                      background: rgba(224,136,58,0.15);
-                      color: var(--gold);
-                      font-size: 0.75rem;
-                      font-weight: 700;
-                    "
-                  >
+                  <span class="proposal-badge proposal-badge-locked">
                     Agreed route
                   </span>
                 {% else %}
-                  <span
-                    style="
-                      display: inline-block;
-                      padding: 0.2rem 0.6rem;
-                      border-radius: 999px;
-                      background: rgba(28,84,133,0.08);
-                      color: var(--blue);
-                      font-size: 0.75rem;
-                      font-weight: 700;
-                    "
-                  >
+                  <span class="proposal-badge proposal-badge-open">
                     Open for voting
                   </span>
                 {% endif %}
               </div>
-
             </div>
 
             {% if user == trip.leader %}
-              <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+              <div class="proposal-actions">
 
-                {% if item.proposal.is_locked %}
-
-                  <button
-                    type="button"
-                    class="btn btn-sm"
-                    style="background: var(--gold); color: white;"
-                    onclick="toggleLock(this, {{ item.proposal.pk }})"
-                  >
+                <button
+                  type="button"
+                  class="btn btn-sm {% if item.proposal.is_locked %}btn-gold{% else %}btn-primary{% endif %}"
+                  onclick="toggleLock(this, {{ item.proposal.pk }})"
+                >
+                  {% if item.proposal.is_locked %}
                     Unlock
-                  </button>
-
-                {% else %}
-
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-sm"
-                    onclick="toggleLock(this, {{ item.proposal.pk }})"
-                  >
+                  {% else %}
                     Agree
-                  </button>
+                  {% endif %}
+                </button>
 
-                  <a
-                    href="{% url 'edit_proposal' item.proposal.pk %}"
-                    class="btn btn-sm btn-secondary"
-                  >
-                    Edit
-                  </a>
+                <a
+                  href="{% url 'edit_proposal' item.proposal.pk %}"
+                  class="btn btn-sm btn-secondary proposal-edit-btn {% if item.proposal.is_locked %}is-hidden-action{% endif %}"
+                >
+                  Edit
+                </a>
 
-                  <button
-                    type="button"
-                    class="btn btn-sm"
-                    style="background:#dc2626; color:white;"
-                    onclick="deleteProposal(this, {{ item.proposal.pk }})"
-                    title="Delete proposal"
-                  >
-                    ×
-                  </button>
-
-                {% endif %}
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger proposal-delete-btn {% if item.proposal.is_locked %}is-hidden-action{% endif %}"
+                  onclick="deleteProposal(this, {{ item.proposal.pk }})"
+                  title="Delete proposal"
+                >
+                  ×
+                </button>
 
               </div>
             {% endif %}
 
           </div>
 
-          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <div class="proposal-vote-row">
 
-            <div class="vote-bar" style="flex: 1; min-width: 120px;">
+            <div class="vote-bar">
               <div
                 class="vote-bar-fill"
                 style="width: {% widthratio item.avg_score 5 100 %}%;"
               ></div>
             </div>
 
-            <small style="min-width: 85px;">
+            <small class="vote-score">
               {{ item.avg_score|floatformat:1 }}/5 ({{ item.total_votes }})
             </small>
 
@@ -147,11 +96,10 @@
               action="{% url 'vote_proposal' item.proposal.pk %}"
               class="vote-form"
               onsubmit="return false;"
-              style="min-width: 110px;"
             >
               {% csrf_token %}
 
-              <select name="score" onchange="submitVote(this)" style="margin-bottom: 0;">
+              <select name="score" onchange="submitVote(this)">
                 <option value="">Vote</option>
                 {% for i in "12345" %}
                   <option value="{{ i }}">{{ i }}★</option>
@@ -168,22 +116,12 @@
 
   {% else %}
 
-    <div
-      style="
-        background: #f7fbff;
-        border: 1px dashed var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        text-align: center;
-        color: var(--text-light);
-        margin-bottom: 1rem;
-      "
-    >
-      <div style="font-size: 2rem; margin-bottom: 0.5rem;">📍</div>
-      <strong style="display: block; color: var(--text); margin-bottom: 0.3rem;">
-        No route proposals yet
-      </strong>
-      <p style="font-size: 0.9rem;">
+    <div class="proposal-empty">
+      <div class="proposal-empty-icon">📍</div>
+
+      <strong>No route proposals yet</strong>
+
+      <p>
         Add the first route option so the group can start voting.
       </p>
     </div>
@@ -196,26 +134,18 @@
       method="post"
       action="{% url 'add_proposal' trip.pk destination_data.category.id %}"
       class="add-proposal-form"
-      style="
-        margin-top: 1rem;
-        padding: 1rem;
-        background: #f7fbff;
-        border-radius: 16px;
-        border: 1px solid rgba(28,84,133,0.12);
-      "
     >
       {% csrf_token %}
 
-      <div class="field-group" style="margin-bottom: 0.8rem;">
-        <label style="font-size: 0.85rem;">Add route proposal</label>
+      <div class="field-group">
+        <label>Add route proposal</label>
 
         <input
-	  id="destination-proposal-input"
+          id="destination-proposal-input"
           type="text"
           name="title"
           placeholder="e.g. Larnaca → Vienna"
           required
-          style="margin-bottom: 0;"
         >
       </div>
 
@@ -226,7 +156,7 @@
 
   {% else %}
 
-    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 1rem;">
+    <p class="proposal-limit-message">
       Maximum number of route proposals reached.
     </p>
 

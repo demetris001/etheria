@@ -1988,6 +1988,12 @@ select:focus {
 
   .proposal-actions {
     justify-content: flex-start;
+
+.is-hidden-action {
+  visibility: hidden;
+  pointer-events: none;
+}
+
   }
 
   .vote-score,
@@ -3168,3 +3174,4 @@ body.invite-page {
   pointer-events: none;
   cursor: not-allowed;
 }
+

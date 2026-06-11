@@ -45,43 +45,33 @@
             {% if user == trip.leader %}
               <div class="proposal-actions">
 
-                {% if item.proposal.is_locked %}
-
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-gold"
-                    onclick="toggleLock(this, {{ item.proposal.pk }})"
-                  >
+                <button
+                  type="button"
+                  class="btn btn-sm {% if item.proposal.is_locked %}btn-gold{% else %}btn-primary{% endif %}"
+                  onclick="toggleLock(this, {{ item.proposal.pk }})"
+                >
+                  {% if item.proposal.is_locked %}
                     Unlock
-                  </button>
-
-                {% else %}
-
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-sm"
-                    onclick="toggleLock(this, {{ item.proposal.pk }})"
-                  >
+                  {% else %}
                     Agree
-                  </button>
+                  {% endif %}
+                </button>
 
-                  <a
-                    href="{% url 'edit_proposal' item.proposal.pk %}"
-                    class="btn btn-sm btn-secondary proposal-edit-btn"
-                  >
-                    Edit
-                  </a>
+                <a
+                  href="{% url 'edit_proposal' item.proposal.pk %}"
+                  class="btn btn-sm btn-secondary proposal-edit-btn {% if item.proposal.is_locked %}is-hidden-action{% endif %}"
+                >
+                  Edit
+                </a>
 
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-danger proposal-delete-btn"
-                    onclick="deleteProposal(this, {{ item.proposal.pk }})"
-                    title="Delete proposal"
-                  >
-                    ×
-                  </button>
-
-                {% endif %}
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger proposal-delete-btn {% if item.proposal.is_locked %}is-hidden-action{% endif %}"
+                  onclick="deleteProposal(this, {{ item.proposal.pk }})"
+                  title="Delete proposal"
+                >
+                  ×
+                </button>
 
               </div>
             {% endif %}
