@@ -263,27 +263,25 @@ def send_invites(request, pk):
             messages.warning(request, "No valid email addresses provided.")
     return redirect('trip_detail', pk=pk)
 
+from django.urls import reverse
+from django.shortcuts import redirect, get_object_or_404
+from urllib.parse import urlencode
+
 def join_trip(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
 
     if not request.user.is_authenticated:
-        request.session['pending_join_trip_id'] = trip.pk
-        messages.info(request, "Please log in or create an account to join this trip.")
-        return redirect('account_login')
+        login_url = reverse('account_login')
+        next_url = reverse('join_trip', args=[trip.pk])
+        return redirect(f"{login_url}?{urlencode({'next': next_url})}")
 
-    participant_exists = TripParticipant.objects.filter(
+    TripParticipant.objects.get_or_create(
         trip=trip,
-        user=request.user
-    ).exists()
+        user=request.user,
+        defaults={'role': 'member'}
+    )
 
-    if not participant_exists:
-        TripParticipant.objects.create(
-            trip=trip,
-            user=request.user,
-            role='member'
-        )
-        messages.success(request, f"You've joined {trip.title}!")
-
+    messages.success(request, f"You've joined {trip.title}!")
     return redirect('trip_detail', pk=trip.pk)
 @login_required
 def trip_chat(request, pk):
