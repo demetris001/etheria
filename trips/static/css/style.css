@@ -866,6 +866,32 @@ select:focus {
 
   overflow-wrap: anywhere;
 }
+.trip-hero-meta {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.trip-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+
+  background: rgba(28, 84, 133, 0.08);
+  color: var(--blue);
+
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.trip-meta-leader {
+  background: rgba(224, 136, 58, 0.14);
+  color: var(--gold);
+}
 
 @media (max-width: 700px) {
   .trip-hero {
@@ -2150,6 +2176,56 @@ select:focus {
   margin-bottom: 0.8rem;
 }
 
+/* === LEAVE TRIP === */
+
+.leave-trip-card {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border-radius: 24px;
+  border: 1px solid rgba(220, 38, 38, 0.16);
+  background: #fff7f7;
+  box-shadow: 0 14px 34px rgba(220, 38, 38, 0.08);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.leave-trip-eyebrow {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  color: #b91c1c;
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.leave-trip-card h3 {
+  margin: 0 0 0.35rem;
+  color: #991b1b;
+  font-size: 1.15rem;
+}
+
+.leave-trip-card p {
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+  .leave-trip-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .leave-trip-card .btn {
+    width: 100%;
+  }
+}
+
 @media (max-width: 600px) {
   .invite-link-row {
     flex-direction: column;
@@ -3086,4 +3162,9 @@ body.invite-page {
   .invite-join-card {
     padding: 1.8rem;
   }
+}
+.nav-link-disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
 }

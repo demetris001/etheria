@@ -116,6 +116,8 @@ def trip_detail(request, pk):
             for p in locked:
                 agreed_list.append(p['proposal'].title)
         summary[name] = agreed_list
+    participant_count = trip.participants.count()
+    is_leader = trip.leader == request.user  
     return render(request, 'trip_detail.html', {
         'trip': trip,
         'destination_data': destination_data,
@@ -123,6 +125,8 @@ def trip_detail(request, pk):
         'transport': transport_data,
         'stay': stay_data,
         'summary': summary,
+        'participant_count': participant_count,
+        'is_leader': is_leader,
     })
 
 @login_required
@@ -334,3 +338,21 @@ def delete_trip(request, pk):
         messages.success(request, f"Trip '{trip.title}' deleted.")
     return redirect('my_trips')
 
+@login_required
+def leave_trip(request, pk):
+    trip = get_object_or_404(Trip, pk=pk)
+
+    if trip.leader == request.user:
+        messages.error(request, "The creator cannot leave a trip they created. You can delete it instead.")
+        return redirect('trip_detail', pk=trip.pk)
+
+    if request.method == 'POST':
+        TripParticipant.objects.filter(
+            trip=trip,
+            user=request.user
+        ).delete()
+
+        messages.success(request, f"You left {trip.title}.")
+        return redirect('my_trips')
+
+    return redirect('trip_detail', pk=trip.pk)

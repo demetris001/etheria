@@ -16,7 +16,11 @@
     <div class="home-nav-actions">
       <a href="{% url 'my_trips' %}" class="btn btn-secondary">My Trips</a>
       <a href="{% url 'create_trip' %}" class="btn btn-primary">Create Trip</a>
-      <a href="{% url 'account_logout' %}" class="btn btn-secondary btn-logout">Log Out</a>
+     {% if user.is_authenticated %}
+  <a href="{% url 'account_logout' %}" class="btn btn-secondary btn-logout">Log Out</a>
+{% else %}
+  <a class="btn btn-secondary btn-logout nav-link-disabled">Log Out</a>
+{% endif %}
     </div>
   </nav>
 
