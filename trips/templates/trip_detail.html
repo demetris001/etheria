@@ -911,7 +911,6 @@ function addToProposal(title, cost, link) {
 
 function toggleLock(button, proposalId) {
     var box = button.closest('.proposal-item');
-    var panel = button.closest('.active-panel');
     var isCurrentlyLocked = box.classList.contains('locked');
     var url = isCurrentlyLocked
         ? '/proposal/' + proposalId + '/unlock/'
@@ -936,55 +935,45 @@ function toggleLock(button, proposalId) {
             return;
         }
 
-        var proposals = panel
-            ? panel.querySelectorAll('.proposal-item')
-            : document.querySelectorAll('.proposal-item');
+        var editButton = box.querySelector('a[href*="edit_proposal"], .proposal-edit-btn');
+        var deleteButton = box.querySelector('button[onclick*="deleteProposal"], .proposal-delete-btn');
+        var badge = box.querySelector('.proposal-badge');
 
-        proposals.forEach(function(item) {
-            var itemId = item.getAttribute('data-proposal-id');
-            var lockButton = item.querySelector('button[onclick*="toggleLock"]');
-            var editButton = item.querySelector('a[href*="edit_proposal"], .proposal-edit-btn');
-            var deleteButton = item.querySelector('button[onclick*="deleteProposal"], .proposal-delete-btn');
-            var badge = item.querySelector('.proposal-badge');
+        if (data.is_locked) {
+            box.classList.add('locked');
 
-            if (!lockButton) return;
+            button.textContent = 'Unlock';
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-gold');
+            button.style.background = '';
+            button.style.color = '';
 
-            if (String(itemId) === String(proposalId) && data.is_locked) {
-                item.classList.add('locked');
+            if (editButton) editButton.style.display = 'none';
+            if (deleteButton) deleteButton.style.display = 'none';
 
-                lockButton.textContent = 'Unlock';
-                lockButton.classList.remove('btn-primary');
-                lockButton.classList.add('btn-gold');
-                lockButton.style.background = '';
-                lockButton.style.color = '';
-
-                if (editButton) editButton.style.display = 'none';
-                if (deleteButton) deleteButton.style.display = 'none';
-
-                if (badge) {
-                    badge.classList.remove('proposal-badge-open');
-                    badge.classList.add('proposal-badge-locked');
-                    badge.textContent = getLockedBadgeText(panel);
-                }
-            } else {
-                item.classList.remove('locked');
-
-                lockButton.textContent = 'Agree';
-                lockButton.classList.remove('btn-gold');
-                lockButton.classList.add('btn-primary');
-                lockButton.style.background = '';
-                lockButton.style.color = '';
-
-                if (editButton) editButton.style.display = '';
-                if (deleteButton) deleteButton.style.display = '';
-
-                if (badge) {
-                    badge.classList.remove('proposal-badge-locked');
-                    badge.classList.add('proposal-badge-open');
-                    badge.textContent = 'Open for voting';
-                }
+            if (badge) {
+                badge.classList.remove('proposal-badge-open');
+                badge.classList.add('proposal-badge-locked');
+                badge.textContent = getLockedBadgeText(box.closest('.active-panel'));
             }
-        });
+        } else {
+            box.classList.remove('locked');
+
+            button.textContent = 'Agree';
+            button.classList.remove('btn-gold');
+            button.classList.add('btn-primary');
+            button.style.background = '';
+            button.style.color = '';
+
+            if (editButton) editButton.style.display = '';
+            if (deleteButton) deleteButton.style.display = '';
+
+            if (badge) {
+                badge.classList.remove('proposal-badge-locked');
+                badge.classList.add('proposal-badge-open');
+                badge.textContent = 'Open for voting';
+            }
+        }
 
         if (data.summary_update) {
             updateSummary(data.summary_update.category_name, data.summary_update.titles);
