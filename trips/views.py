@@ -28,7 +28,19 @@ def my_trips(request):
         .distinct()
         .order_by('-created_at')
     )
+    pending_trip_id = request.session.pop('pending_join_trip_id', None)
 
+    if pending_trip_id:
+        pending_trip = get_object_or_404(Trip, pk=pending_trip_id)
+
+        TripParticipant.objects.get_or_create(
+            trip=pending_trip,
+            user=request.user,
+            defaults={'role': 'member'}
+        )
+
+        messages.success(request, f"You've joined {pending_trip.title}!")
+        return redirect('trip_detail', pk=pending_trip.pk)
     created_trips = trips.filter(leader=request.user)
     participating_trips = trips.exclude(leader=request.user)
 
@@ -254,24 +266,25 @@ def send_invites(request, pk):
 def join_trip(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
 
-    if request.user.is_authenticated:
-        participant_exists = TripParticipant.objects.filter(
+    if not request.user.is_authenticated:
+        request.session['pending_join_trip_id'] = trip.pk
+        messages.info(request, "Please log in or create an account to join this trip.")
+        return redirect('account_login')
+
+    participant_exists = TripParticipant.objects.filter(
+        trip=trip,
+        user=request.user
+    ).exists()
+
+    if not participant_exists:
+        TripParticipant.objects.create(
             trip=trip,
-            user=request.user
-        ).exists()
+            user=request.user,
+            role='member'
+        )
+        messages.success(request, f"You've joined {trip.title}!")
 
-        if not participant_exists:
-            TripParticipant.objects.create(
-                trip=trip,
-                user=request.user,
-                role='member'
-            )
-            messages.success(request, f"You've joined {trip.title}!")
-
-        return redirect('trip_detail', pk=trip.pk)
-
-    return render(request, 'join_trip.html', {'trip': trip})
-
+    return redirect('trip_detail', pk=trip.pk)
 @login_required
 def trip_chat(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
