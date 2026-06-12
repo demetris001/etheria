@@ -133,32 +133,56 @@ def trip_detail(request, pk):
 def add_proposal(request, trip_pk, category_pk):
     trip = get_object_or_404(Trip, pk=trip_pk)
     category = get_object_or_404(Category, pk=category_pk, trip=trip)
+
     if not TripParticipant.objects.filter(trip=trip, user=request.user).exists():
         return JsonResponse({'success': False, 'error': 'Not a member.'}, status=403)
 
     if request.method == 'POST':
+        participant = TripParticipant.objects.get(trip=trip, user=request.user)
+
         if category.name == 'Dates':
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
-            if start_date and end_date:
-                from datetime import datetime
-                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
-                end_dt = datetime.strptime(end_date, '%Y-%m-%d')
-                title = f"{start_dt.strftime('%d/%m/%Y')} – {end_dt.strftime('%d/%m/%Y')}"
-                participant = TripParticipant.objects.get(trip=trip, user=request.user)
-                proposal = Proposal.objects.create(category=category, proposer=participant, title=title)
-            else:
+
+            if not start_date or not end_date:
                 return JsonResponse({'success': False, 'error': 'Both dates are required.'})
+
+            from datetime import datetime
+
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+
+            if end_dt < start_dt:
+                return JsonResponse({'success': False, 'error': 'End date cannot be before start date.'})
+
+            if start_dt.year == end_dt.year and start_dt.month == end_dt.month:
+                title = f"{start_dt.day}–{end_dt.day} {start_dt.strftime('%b')} {start_dt.year}"
+            elif start_dt.year == end_dt.year:
+                title = f"{start_dt.day} {start_dt.strftime('%b')} – {end_dt.day} {end_dt.strftime('%b')} {start_dt.year}"
+            else:
+                title = f"{start_dt.day} {start_dt.strftime('%b')} {start_dt.year} – {end_dt.day} {end_dt.strftime('%b')} {end_dt.year}"
+
+            proposal = Proposal.objects.create(
+                category=category,
+                proposer=participant,
+                title=title
+            )
+
         else:
             title = request.POST.get('title', '').strip()
+
             if not title:
                 return JsonResponse({'success': False, 'error': 'Title is required.'})
+
             cost = request.POST.get('cost', '').strip()
             link = request.POST.get('link', '').strip()
-            participant = TripParticipant.objects.get(trip=trip, user=request.user)
+
             proposal = Proposal.objects.create(
-                category=category, proposer=participant,
-                title=title, cost=cost if cost else None, link=link if link else None
+                category=category,
+                proposer=participant,
+                title=title,
+                cost=cost if cost else None,
+                link=link if link else None
             )
 
         return JsonResponse({
