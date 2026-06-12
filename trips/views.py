@@ -287,17 +287,24 @@ def send_invites(request, pk):
                     fail_silently=True,
                    )
             if len(email_list) == 1:
-                messages.success(
-                request,
-                f"Invitation successfully sent to {email_list[0]}."
-                )
+                success_message = f"Invitation successfully sent to {email_list[0]}."
             else:
-                messages.success(
-                request,
-                f"Invitations successfully sent to: {', '.join(email_list)}."
-                )
+                success_message = f"Invitations successfully sent to: {', '.join(email_list)}."
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                    'success': True,
+                    'message': success_message
+                 })
+
+                messages.success(request, success_message)
         else:
-            messages.warning(request, "No valid email addresses provided.")
+            error_message = "No valid email addresses provided."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+             return JsonResponse({
+                        'success': False,
+                        'error': error_message
+                    })
+            messages.warning(request, error_message)
     return redirect('trip_detail', pk=pk)
 
 from django.urls import reverse

@@ -415,7 +415,7 @@
   </div>
 
   <!-- SEARCH TRANSPORT -->
-  <div class="card search-card">
+  <div class="card search-card" id="transport-search-card" data-add-url="{% url 'add_proposal' trip.pk transport.category.id %}">
     <div class="search-card-header">
       <div>
         <span class="search-icon">🔍</span>
@@ -475,7 +475,9 @@
   </div>
 
   <!-- SEARCH HOTELS -->
-  <div class="card search-card">
+  <div class="card search-card"
+      id="hotel-search-card"
+      data-add-url="{% url 'add_proposal' trip.pk stay.category.id %}">
     <div class="search-card-header">
       <div>
         <span class="search-icon">🏨</span>
@@ -522,6 +524,9 @@
   </div>
 
 </div>
+
+<div id="toast-message" class="toast-message"></div>
+
 
 <script>
 function getCsrfToken() {
@@ -714,6 +719,52 @@ document.querySelectorAll('.add-proposal-form').forEach(function(form) {
     });
 });
 
+
+document.querySelectorAll('.invite-form').forEach(function(form) {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var formData = new FormData(form);
+        var button = form.querySelector('button[type="submit"]');
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = 'Sending...';
+        }
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken') || getCsrfToken()
+            },
+            body: formData
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (!data.success) {
+                alert(data.error || 'Could not send invitation.');
+                return;
+            }
+
+            showToast(data.message || 'Invitation sent.');
+            form.reset();
+        })
+        .catch(function(error) {
+            console.error(error);
+            alert('Network error.');
+        })
+        .finally(function() {
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Send Invites';
+            }
+        });
+    });
+});
+
 // ========== SEARCH ==========
 
 var currentTransport = 'flights';
@@ -822,7 +873,7 @@ function searchTransport() {
                 '<strong>' + item.title + '</strong><br>' +
                 '<span>€' + item.cost + '</span> · ' + item.details + '<br>' +
                 '<div style="display: flex; gap: 0.5rem; margin-top: 0.45rem;">' +
-                    '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\')">+ Add</button>' +
+                    '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'transport\', \'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\', this)">+ Add</button>' +
                     '<a href="' + item.link + '" target="_blank" class="btn btn-sm" style="flex: 1; font-size: 0.85rem; background: var(--gold); color: white; text-align: center; text-decoration: none;">Buy Now</a>' +
                 '</div>' +
             '</div>';
@@ -866,47 +917,78 @@ function searchHotels() {
         '</p>';
 
     mockResults.forEach(function(item) {
-        html +=
-            '<div>' +
-                '<strong>' + item.title + '</strong><br>' +
-                '<span>€' + item.cost + '</span> · ' + item.details + '<br>' +
-                '<div style="display: flex; gap: 0.5rem; margin-top: 0.45rem;">' +
-                    '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\')">+ Add</button>' +
-                    '<a href="' + item.link + '" target="_blank" class="btn btn-sm" style="flex: 1; font-size: 0.85rem; background: var(--gold); color: white; text-align: center; text-decoration: none;">Book Now</a>' +
-                '</div>' +
-            '</div>';
-    });
-
+    html +=
+        '<div>' +
+            '<strong>' + item.title + '</strong><br>' +
+            '<span>€' + item.cost + '</span> · ' + item.details + '<br>' +
+            '<div style="display: flex; gap: 0.5rem; margin-top: 0.45rem;">' +
+                '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'hotel\', \'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\', this)">+ Add</button>' +
+                '<a href="' + item.link + '" target="_blank" class="btn btn-sm" style="flex: 1; font-size: 0.85rem; background: var(--gold); color: white; text-align: center; text-decoration: none;">Book Now</a>' +
+            '</div>' +
+        '</div>';
+});
     document.getElementById('hotel-results').innerHTML = html;
 }
 
-function addToProposal(title, cost, link) {
-    var activePanel = document.querySelector('.active-panel.visible');
+function addToProposal(type, title, cost, link, button) {
+    var cardId = type === 'hotel' ? 'hotel-search-card' : 'transport-search-card';
+    var card = document.getElementById(cardId);
 
-    if (!activePanel) {
-        alert('Please select a category first.');
+    if (!card) {
+        alert('Search card not found.');
         return;
     }
 
-    var titleInput = activePanel.querySelector('input[name="title"]');
-    var costInput = activePanel.querySelector('input[name="cost"]');
-    var linkInput = activePanel.querySelector('input[name="link"]');
+    var addUrl = card.dataset.addUrl;
 
-    if (titleInput) titleInput.value = title;
-    if (costInput) costInput.value = cost;
-    if (linkInput) linkInput.value = link;
-
-    var addForm = activePanel.querySelector('.add-proposal-form');
-
-    if (addForm) {
-        addForm.scrollIntoView({ behavior: 'smooth' });
-
-        var submitButton = addForm.querySelector('button[type="submit"]');
-
-        if (submitButton) {
-            submitButton.focus();
-        }
+    if (!addUrl) {
+        alert('Add proposal URL not found.');
+        return;
     }
+
+    var formData = new FormData();
+    formData.append('title', title);
+    formData.append('cost', cost || '');
+    formData.append('link', link || '');
+    formData.append('csrfmiddlewaretoken', getCsrfToken());
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Adding...';
+    }
+
+    fetch(addUrl, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: formData
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (!data.success) {
+            alert(data.error || 'Could not add proposal.');
+            return;
+        }
+
+        var message = type === 'hotel'
+          ? 'Added to Accommodation proposals.'
+            : 'Added to Transport proposals.';
+        showToast(message);
+    })
+    .catch(function(error) {
+        console.error(error);
+        alert('Network error.');
+    })
+    .finally(function() {
+        if (button) {
+            button.disabled = false;
+            button.textContent = '+ Add';
+        }
+    });
 }
 
 function toggleLock(button, proposalId) {
@@ -1069,6 +1151,20 @@ function updateSummary(categoryName, titles) {
     });
 }
 
+function showToast(message) {
+    var toast = document.getElementById('toast-message');
+
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add('visible');
+
+    clearTimeout(toast.hideTimeout);
+
+    toast.hideTimeout = setTimeout(function() {
+        toast.classList.remove('visible');
+    }, 2500);
+}
 
 </script>
 </body>

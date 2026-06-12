@@ -2978,6 +2978,49 @@ select {
   }
 }
 
+/* TOAST MESSAGE */
+.toast-message {
+  position: fixed;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 9999;
+
+  max-width: 320px;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+
+  background: var(--blue);
+  color: white;
+
+  font-size: 0.9rem;
+  font-weight: 800;
+
+  box-shadow: 0 14px 34px rgba(28, 84, 133, 0.22);
+
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.toast-message.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+  .toast-message {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: none;
+    text-align: center;
+  }
+}
+
 /* === RESPONSIVE === */
 
 @media (max-width: 1000px) {
@@ -3174,4 +3217,6 @@ body.invite-page {
   pointer-events: none;
   cursor: not-allowed;
 }
+
+
 
