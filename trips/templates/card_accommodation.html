@@ -33,7 +33,7 @@
                 <div class="proposal-meta-row">
                   {% if item.proposal.cost %}
                     <span class="proposal-meta-pill">
-                      €{{ item.proposal.cost }}
+                      €{{ item.proposal.cost }} total
                     </span>
                   {% endif %}
 
@@ -170,7 +170,7 @@
           <input
             type="number"
             name="cost"
-            placeholder="Price (€)"
+            placeholder="Total stay price (€)"
             step="0.01"
             class="proposal-form-cost-input"
           >
