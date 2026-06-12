@@ -921,6 +921,7 @@ select:focus {
     font-size: 0.9rem;
   }
 }
+
 /* === TRIP SUMMARY === */
 
 .trip-summary-ticket {
@@ -1249,20 +1250,6 @@ select:focus {
     inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
-@media (max-width: 700px) {
-  .ticket-fields-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .ticket-field {
-    border-right: none !important;
-  }
-
-  .ticket-field:not(:last-child) {
-    border-bottom: 1px dashed rgba(123, 91, 45, 0.22);
-  }
-}
-
 /* mobile */
 
 @media (max-width: 700px) {
@@ -1286,11 +1273,16 @@ select:focus {
   }
 
   .ticket-fields-grid {
-    grid-template-columns: 1fr;
+    display: block;
   }
 
   .ticket-field {
-    min-height: 82px;
+    width: 100%;
+    min-height: auto;
+    display: block;
+
+    padding: 1rem;
+
     border-right: none !important;
     border-bottom: 1px dashed rgba(28, 95, 184, 0.14);
   }
@@ -1298,7 +1290,23 @@ select:focus {
   .ticket-field:last-child {
     border-bottom: none;
   }
+
+  .ticket-field-label {
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .ticket-field-value {
+    display: block;
+
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.35;
+  }
 }
+
+
 /* === START HERE CARD === */
 .start-here-card {
   display: flex;
@@ -3217,6 +3225,4 @@ body.invite-page {
   pointer-events: none;
   cursor: not-allowed;
 }
-
-
 
