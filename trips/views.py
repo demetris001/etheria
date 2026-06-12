@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.db.models import Avg
 from .models import Trip, TripParticipant, Category, Proposal, Vote
 from .forms import TripForm
+from urllib.parse import urlencode
 
 def home(request):
     return render(request, 'home.html')
@@ -270,46 +271,60 @@ def edit_proposal(request, pk):
 @login_required
 def send_invites(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
     if trip.leader != request.user:
-        messages.error(request, "Only the trip leader can send invitations.")
+        error_message = "Only the trip leader can send invitations."
+
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': error_message}, status=403)
+
+        messages.error(request, error_message)
         return redirect('trip_detail', pk=pk)
+
     if request.method == 'POST':
         emails_raw = request.POST.get('emails', '')
         email_list = [e.strip() for e in emails_raw.split(',') if e.strip()]
-        if email_list:
-            join_link = request.build_absolute_uri(reverse('join_trip', args=[trip.pk]))
-            for email in email_list:
-                send_mail(
-                    subject=f"You're invited to join {trip.title} on Etheria",
-                    message=f"Hello!\n\n{request.user.username} has invited you to join the group trip \"{trip.title}\".\n\nClick the link below to join:\n{join_link}\n\nSee you there!\n– Etheria",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=True,
-                   )
-            if len(email_list) == 1:
-                success_message = f"Invitation successfully sent to {email_list[0]}."
-            else:
-                success_message = f"Invitations successfully sent to: {', '.join(email_list)}."
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    return JsonResponse({
-                    'success': True,
-                    'message': success_message
-                 })
 
-                messages.success(request, success_message)
-        else:
+        if not email_list:
             error_message = "No valid email addresses provided."
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-             return JsonResponse({
-                        'success': False,
-                        'error': error_message
-                    })
+
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': error_message})
+
             messages.warning(request, error_message)
+            return redirect('trip_detail', pk=pk)
+
+        join_link = request.build_absolute_uri(reverse('join_trip', args=[trip.pk]))
+
+        for email in email_list:
+            send_mail(
+                subject=f"You're invited to join {trip.title} on Etheria",
+                message=(
+                    f"Hello!\n\n"
+                    f"{request.user.username} has invited you to join the group trip "
+                    f"\"{trip.title}\".\n\n"
+                    f"Click the link below to join:\n{join_link}\n\n"
+                    f"See you there!\n– Etheria"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=True,
+            )
+
+        if len(email_list) == 1:
+            success_message = f"Invitation successfully sent to {email_list[0]}."
+        else:
+            success_message = f"Invitations successfully sent to: {', '.join(email_list)}."
+
+        if is_ajax:
+            return JsonResponse({'success': True, 'message': success_message})
+
+        messages.success(request, success_message)
+        return redirect('trip_detail', pk=pk)
+
     return redirect('trip_detail', pk=pk)
 
-from django.urls import reverse
-from django.shortcuts import redirect, get_object_or_404
-from urllib.parse import urlencode
 
 def join_trip(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
@@ -327,6 +342,7 @@ def join_trip(request, pk):
 
     messages.success(request, f"You've joined {trip.title}!")
     return redirect('trip_detail', pk=trip.pk)
+
 @login_required
 def trip_chat(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
