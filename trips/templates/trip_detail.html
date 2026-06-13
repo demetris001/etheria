@@ -47,7 +47,7 @@
           {% if summary.Destination %}
             {{ summary.Destination|join:" → " }}
           {% else %}
-            Start planning your route together.
+            Start shaping your trip itinerary together.
           {% endif %}
         </p>
         <div class="trip-hero-meta">
@@ -100,7 +100,7 @@
     <div class="ticket-fields-grid">
 
       <div class="ticket-field {% if summary.Destination %}is-set{% endif %}">
-        <span class="ticket-field-label">Route</span>
+        <span class="ticket-field-label">Itinerary</span>
 
         <strong class="ticket-field-value">
           {% if summary.Destination %}
@@ -124,44 +124,52 @@
       </div>
 
       <div class="ticket-field {% if summary.Μετάβαση %}is-set{% endif %}">
-        <span class="ticket-field-label">Transport</span>
+  <span class="ticket-field-label">Transport</span>
 
-        <strong class="ticket-field-value">
-          {% if summary.Μετάβαση %}
-            {{ summary.Μετάβαση|join:" → " }}
-          {% else %}
-            Not yet
-          {% endif %}
-        </strong>
-      </div>
+  <strong class="ticket-field-value">
+    {% if summary.Μετάβαση %}
+      {% if summary.Μετάβαση|length > 1 %}
+        {{ summary.Μετάβαση|length }} options agreed
+      {% else %}
+        {{ summary.Μετάβαση.0 }}
+      {% endif %}
+    {% else %}
+      Not yet
+    {% endif %}
+  </strong>
+</div>
 
-      <div class="ticket-field {% if summary.Διαμονή %}is-set{% endif %}">
-        <span class="ticket-field-label">Accommodation</span>
+<div class="ticket-field {% if summary.Διαμονή %}is-set{% endif %}">
+  <span class="ticket-field-label">Accommodation</span>
 
-        <strong class="ticket-field-value">
-          {% if summary.Διαμονή %}
-            {{ summary.Διαμονή|join:" → " }}
-          {% else %}
-            Not yet
-          {% endif %}
-        </strong>
-      </div>
+  <strong class="ticket-field-value">
+    {% if summary.Διαμονή %}
+      {% if summary.Διαμονή|length > 1 %}
+        {{ summary.Διαμονή|length }} stays agreed
+      {% else %}
+        {{ summary.Διαμονή.0 }}
+      {% endif %}
+    {% else %}
+      Not yet
+    {% endif %}
+  </strong>
+</div>
 
     </div>
 
   </div>
 
 </details>
-{% if not summary.Destination and destination_data.proposals|length == 0 %}
+{% if not summary.Dates and dates_data.proposals|length == 0 %}
   <!-- START HERE CARD -->
   <div class="start-here-card">
     <div>
       <span class="page-eyebrow">Start here</span>
 
-      <h3>Add the first route option for your group to vote on.</h3>
+      <h3>Add the first travel dates for your group to vote on.</h3>
 
       <p>
-        Start by suggesting where the group could go. After the first route is added,
+        Start by suggesting when the group could travel. After the first date option is added,
         this guide will disappear and the trip planner dock will take over.
       </p>
     </div>
@@ -169,40 +177,19 @@
     <button
       type="button"
       class="btn btn-primary btn-sm"
-      onclick="activatePanelAndFocus('destination', 'destination-proposal-input')"
+      onclick="activatePanel('dates')"
     >
-      Add Route
+      Add Dates
     </button>
   </div>
 {% endif %}
 
 <!-- TRIP PLANNER DOCK -->
 <div class="planner-dock">
+
   <button
     type="button"
     class="planner-step active"
-    onclick="activatePanel('destination')"
-  >
-    <span class="planner-icon">📍</span>
-
-    <span class="planner-text">
-      <strong>Route</strong>
-
-      <small>
-        {% if summary.Destination %}
-          ✓ Decided
-        {% elif destination_data.proposals|length == 0 %}
-          Start here
-        {% else %}
-          {{ destination_data.proposals|length }} options
-        {% endif %}
-      </small>
-    </span>
-  </button>
-
-  <button
-    type="button"
-    class="planner-step"
     onclick="activatePanel('dates')"
   >
     <span class="planner-icon">📅</span>
@@ -214,9 +201,31 @@
         {% if summary.Dates %}
           ✓ Decided
         {% elif dates_data.proposals|length == 0 %}
-          Add dates
+          Start here
         {% else %}
           {{ dates_data.proposals|length }} options
+        {% endif %}
+      </small>
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="planner-step"
+    onclick="activatePanel('destination')"
+  >
+    <span class="planner-icon">📍</span>
+
+    <span class="planner-text">
+      <strong>Itinerary</strong>
+
+      <small>
+        {% if summary.Destination %}
+          ✓ Decided
+        {% elif destination_data.proposals|length == 0 %}
+          Add route
+        {% else %}
+          {{ destination_data.proposals|length }} options
         {% endif %}
       </small>
     </span>
@@ -266,31 +275,31 @@
     </span>
   </button>
 
-</div>    
+</div>
+<!-- DATES PANEL -->
+<div id="panel-dates" class="active-panel visible">
+  <h2>📅 Dates</h2>
+  {% include 'card_dates.html' %}
+</div>
 
-<!-- DESTINATION PANEL -->
-    <div id="panel-destination" class="active-panel visible">
-      <h2>📍 Route</h2>
-      {% include 'card_destination.html' %}
-    </div>
+<!-- ITINERARY PANEL -->
+<div id="panel-destination" class="active-panel">
+  <h2>📍 Itinerary</h2>
+  {% include 'card_destination.html' %}
+</div>
 
-    <!-- DATES PANEL -->
-    <div id="panel-dates" class="active-panel">
-      <h2>📅 Dates</h2>
-      {% include 'card_dates.html' %}
-    </div>
+<!-- TRANSPORT PANEL -->
+<div id="panel-transport" class="active-panel">
+  <h2>✈️ Transport</h2>
+  {% include 'card_transport.html' %}
+</div>
 
-    <!-- TRANSPORT PANEL -->
-    <div id="panel-transport" class="active-panel">
-      <h2>✈️ Transport</h2>
-      {% include 'card_transport.html' %}
-    </div>
+<!-- ACCOMMODATION PANEL -->
+<div id="panel-accommodation" class="active-panel">
+  <h2>🏨 Accommodation</h2>
+  {% include 'card_accommodation.html' %}
+</div>
 
-    <!-- ACCOMMODATION PANEL -->
-    <div id="panel-accommodation" class="active-panel">
-      <h2>🏨 Accommodation</h2>
-      {% include 'card_accommodation.html' %}
-    </div>
 <!-- CHAT -->
 <div class="chat-box">
   <div class="chat-header">
@@ -1149,7 +1158,7 @@ function deleteProposal(button, proposalId) {
 
 function updateSummary(categoryName, titles) {
     var labelMap = {
-        'Destination': 'Route',
+        'Destination': 'Itinerary',
         'Dates': 'Dates',
         'Μετάβαση': 'Transport',
         'Διαμονή': 'Accommodation'
