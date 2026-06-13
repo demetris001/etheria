@@ -443,6 +443,9 @@
       <input type="date" id="search-return">
     </div>
 
+     <p class="date-preview" id="transport-date-preview">
+      Select travel dates
+    </p>
     <div class="form-row">
       <input
         type="number"
@@ -497,6 +500,10 @@
       <input type="date" id="hotel-checkin">
       <input type="date" id="hotel-checkout">
     </div>
+
+    <p class="date-preview" id="hotel-date-preview">
+    Select stay dates
+    </p>
 
     <div class="form-row">
       <input
@@ -867,17 +874,22 @@ function searchTransport() {
             '<em>Results for ' + from + ' → ' + to + ' (' + travelClass + ', ' + stops + ', ' + passengers + ' passenger' + (passengers != 1 ? 's' : '') + '):</em>' +
         '</p>';
 
-    results.forEach(function(item) {
-        html +=
-            '<div>' +
-                '<strong>' + item.title + '</strong><br>' +
-                '<span>€' + item.cost + '</span> · ' + item.details + '<br>' +
-                '<div style="display: flex; gap: 0.5rem; margin-top: 0.45rem;">' +
-                    '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'transport\', \'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\', this)">+ Add</button>' +
-                    '<a href="' + item.link + '" target="_blank" class="btn btn-sm" style="flex: 1; font-size: 0.85rem; background: var(--gold); color: white; text-align: center; text-decoration: none;">Buy Now</a>' +
-                '</div>' +
-            '</div>';
-    });
+   results.forEach(function(item) {
+    html +=
+        '<div class="search-result-card">' +
+            '<div class="search-result-main">' +
+                '<strong class="search-result-title">' + item.title + '</strong>' +
+                '<p class="search-result-details">' + item.details + '</p>' +
+            '</div>' +
+
+            '<div class="search-result-price">€' + item.cost + '</div>' +
+
+            '<div class="search-result-actions">' +
+                '<button class="btn btn-primary btn-sm" onclick="addToProposal(\'transport\', \'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\', this)">+ Add</button>' +
+                '<a href="' + item.link + '" target="_blank" class="btn btn-sm btn-gold-link">Buy Now</a>' +
+            '</div>' +
+        '</div>';
+});
 
     document.getElementById('transport-results').innerHTML =
         html || '<p style="color: var(--text-light);">No results found.</p>';
@@ -918,15 +930,20 @@ function searchHotels() {
 
     mockResults.forEach(function(item) {
     html +=
-        '<div>' +
-            '<strong>' + item.title + '</strong><br>' +
-            '<span>€' + item.cost + '</span> · ' + item.details + '<br>' +
-            '<div style="display: flex; gap: 0.5rem; margin-top: 0.45rem;">' +
-                '<button class="btn btn-primary btn-sm" style="flex: 1; font-size: 0.85rem;" onclick="addToProposal(\'hotel\', \'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\', this)">+ Add</button>' +
-                '<a href="' + item.link + '" target="_blank" class="btn btn-sm" style="flex: 1; font-size: 0.85rem; background: var(--gold); color: white; text-align: center; text-decoration: none;">Book Now</a>' +
+        '<div class="search-result-card">' +
+            '<div class="search-result-main">' +
+                '<strong class="search-result-title">' + item.title + '</strong>' +
+                '<p class="search-result-details">' + item.details + '</p>' +
+            '</div>' +
+
+            '<div class="search-result-price">€' + item.cost + '</div>' +
+
+            '<div class="search-result-actions">' +
+                '<button class="btn btn-primary btn-sm" onclick="addToProposal(\'hotel\', \'' + item.title + '\', \'' + item.cost + '\', \'' + item.link + '\', this)">+ Add</button>' +
+                '<a href="' + item.link + '" target="_blank" class="btn btn-sm btn-gold-link">Book Now</a>' +
             '</div>' +
         '</div>';
-});
+    });
     document.getElementById('hotel-results').innerHTML = html;
 }
 
@@ -1166,6 +1183,71 @@ function showToast(message) {
     }, 2500);
 }
 
+function formatSearchDate(value) {
+    if (!value) return '';
+
+    var date = new Date(value + 'T00:00:00');
+
+    return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+    });
+}
+
+function updateDatePreview(startId, endId, previewId, emptyText) {
+    var start = document.getElementById(startId);
+    var end = document.getElementById(endId);
+    var preview = document.getElementById(previewId);
+
+    if (!start || !end || !preview) return;
+
+    var startText = formatSearchDate(start.value);
+    var endText = formatSearchDate(end.value);
+
+    if (startText && endText) {
+        preview.textContent = startText + ' – ' + endText;
+    } else if (startText) {
+        preview.textContent = 'From ' + startText;
+    } else if (endText) {
+        preview.textContent = 'Until ' + endText;
+    } else {
+        preview.textContent = emptyText;
+    }
+}
+
+['search-depart', 'search-return'].forEach(function(id) {
+    var input = document.getElementById(id);
+    if (input) {
+        input.addEventListener('change', function() {
+            updateDatePreview(
+                'search-depart',
+                'search-return',
+                'transport-date-preview',
+                'Select travel dates'
+            );
+        });
+    }
+});
+
+['hotel-checkin', 'hotel-checkout'].forEach(function(id) {
+    var input = document.getElementById(id);
+    if (input) {
+        input.addEventListener('change', function() {
+            updateDatePreview(
+                'hotel-checkin',
+                'hotel-checkout',
+                'hotel-date-preview',
+                'Select stay dates'
+            );
+        });
+    }
+});
+
+
 </script>
 </body>
 </html>
+
+
+
