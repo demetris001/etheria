@@ -1995,21 +1995,29 @@ select:focus {
   }
 
   .proposal-actions {
-    justify-content: flex-start;
-
-.is-hidden-action {
-  visibility: hidden;
-  pointer-events: none;
+  justify-content: flex-start;
 }
+  .vote-bar {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .vote-bar-fill {
+    min-height: 10px;
+  }
 
   }
 
+  .is-hidden-action {
+  visibility: hidden;
+  pointer-events: none;
+  }
   .vote-score,
   .vote-form {
     min-width: 0;
     width: 100%;
   }
-}
+
 /* === TRIP CHAT === */
 
 .chat-box {
