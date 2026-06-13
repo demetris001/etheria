@@ -1921,6 +1921,19 @@ select:focus {
   flex: 1;
   margin-bottom: 0;
 }
+.date-preview {
+  margin: -0.35rem 0 0.8rem;
+
+  color: var(--blue);
+  font-size: 0.84rem;
+  font-weight: 800;
+
+  background: rgba(28, 84, 133, 0.06);
+  border: 1px solid rgba(28, 84, 133, 0.10);
+  border-radius: 999px;
+
+  padding: 0.45rem 0.7rem;
+}
 .proposal-meta-row {
   display: flex;
   align-items: center;
