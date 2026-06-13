@@ -786,6 +786,10 @@ function selectTransportTab(button, type) {
 }
 
 function searchTransport() {
+  var button = document.querySelector('.search-main-btn');
+    button.disabled = true;
+    button.textContent = 'Searching...';
+   setTimeout(function() {
     var from = document.getElementById('search-from').value || 'Larnaca';
     var to = document.getElementById('search-to').value || 'Prague';
     var depart = document.getElementById('search-depart').value || '2026-07-10';
@@ -893,16 +897,21 @@ function searchTransport() {
 
     document.getElementById('transport-results').innerHTML =
         html || '<p style="color: var(--text-light);">No results found.</p>';
+button.disabled = false;
+button.textContent = 'Search Transport';    
+ }, 400);
 }
 
 function searchHotels() {
+    var button = document.querySelectorAll('.search-main-btn')[1];
+    button.disabled = true;
+    button.textContent = 'Searching...';
     var city = document.getElementById('hotel-city').value || 'Prague';
     var checkin = document.getElementById('hotel-checkin').value || '2026-07-10';
     var checkout = document.getElementById('hotel-checkout').value || '2026-07-17';
     var guests = document.getElementById('hotel-guests').value || '1';
     var rooms = document.getElementById('hotel-rooms').value || '1';
-
-    var mockResults = [
+      var mockResults = [
         {
             title: 'Hotel Paris',
             cost: '120',
@@ -922,12 +931,11 @@ function searchHotels() {
             link: 'https://www.booking.com'
         }
     ];
-
     var html =
         '<p style="color: var(--text-light); font-size: 0.85rem; margin-bottom: 0.5rem;">' +
             '<em>Results for ' + city + ' (' + checkin + ' – ' + checkout + ', ' + guests + ' guest(s), ' + rooms + ' room(s)):</em>' +
         '</p>';
-
+setTimeout(function() {
     mockResults.forEach(function(item) {
     html +=
         '<div class="search-result-card">' +
@@ -945,6 +953,9 @@ function searchHotels() {
         '</div>';
     });
     document.getElementById('hotel-results').innerHTML = html;
+    button.disabled = false;
+    button.textContent = 'Search Hotels';
+    }, 400);
 }
 
 function addToProposal(type, title, cost, link, button) {
