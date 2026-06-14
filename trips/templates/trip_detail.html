@@ -42,15 +42,8 @@
         <span class="trip-eyebrow">Group Trip</span>
 
         <h1>{{ trip.title }}</h1>
-
-        <p>
-          {% if summary.Destination %}
-            {{ summary.Destination|join:" → " }}
-          {% else %}
-            Start shaping your trip itinerary together.
-          {% endif %}
-        </p>
-        <div class="trip-hero-meta">
+<p>Plan, vote and decide together with your group.</p>
+     <div class="trip-hero-meta">
   <span class="trip-meta-chip">
     👥 {{ participant_count }} participant{% if participant_count != 1 %}s{% endif %}
   </span>
@@ -181,6 +174,23 @@
     >
       Add Dates
     </button>
+  </div>
+{% endif %}
+
+{% if stops %}
+  <div class="card">
+    <h3>Trip Stops (Experimental)</h3>
+
+    {% for stop in stops %}
+      <div>
+        <strong>{{ stop.title }}</strong><br>
+        {{ stop.start_date }}
+        {% if stop.end_date %}
+          - {{ stop.end_date }}
+        {% endif %}
+      </div>
+      <hr>
+    {% endfor %}
   </div>
 {% endif %}
 

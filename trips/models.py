@@ -34,6 +34,39 @@ class Trip(models.Model):
 
     def __str__(self):
         return self.title
+    
+class TripStop(models.Model):
+    trip = models.ForeignKey(
+        'Trip',
+        on_delete=models.CASCADE,
+        related_name='stops'
+    )
+
+    title = models.CharField(
+        max_length=200
+    )
+
+    start_date = models.DateField()
+
+    end_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    order = models.PositiveIntegerField(
+        default=0
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ['order', 'start_date']
+
+    def __str__(self):
+        return f"{self.title} ({self.start_date})"
+    
 class TripParticipant(models.Model):
     ROLE_CHOICES = [
         ('leader', 'Leader'),

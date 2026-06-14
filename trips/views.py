@@ -82,6 +82,7 @@ def create_trip(request):
 @login_required
 def trip_detail(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
+    stops = trip.stops.all()
     for cat_name in ['Destination', 'Dates', 'Μετάβαση', 'Διαμονή']:
         Category.objects.get_or_create(trip=trip, name=cat_name, defaults={'max_proposals': 10})
     def get_category_data(cat_name):
@@ -128,6 +129,7 @@ def trip_detail(request, pk):
         'summary': summary,
         'participant_count': participant_count,
         'is_leader': is_leader,
+        'stops': stops,
     })
 
 @login_required
